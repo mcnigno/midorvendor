@@ -1,4 +1,4 @@
-#!/Users/danilo/midor/venv/bin/python
+#!/Users/danilo/midorvendor/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

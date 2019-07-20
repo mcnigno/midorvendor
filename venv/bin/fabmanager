@@ -1,6 +1,6 @@
-#!/Users/danilo/midor/venv/bin/python3
-# EASY-INSTALL-ENTRY-SCRIPT: 'Flask-AppBuilder==1.12.3','console_scripts','fabmanager'
-__requires__ = 'Flask-AppBuilder==1.12.3'
+#!/Users/danilo/midorvendor/venv/bin/python3
+# EASY-INSTALL-ENTRY-SCRIPT: 'Flask-AppBuilder==2.1.6','console_scripts','fabmanager'
+__requires__ = 'Flask-AppBuilder==2.1.6'
 import re
 import sys
 from pkg_resources import load_entry_point
@@ -8,5 +8,5 @@ from pkg_resources import load_entry_point
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
     sys.exit(
-        load_entry_point('Flask-AppBuilder==1.12.3', 'console_scripts', 'fabmanager')()
+        load_entry_point('Flask-AppBuilder==2.1.6', 'console_scripts', 'fabmanager')()
     )

@@ -2,11 +2,10 @@ from flask import render_template, request
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask_appbuilder import ModelView, BaseView, expose
 from app import appbuilder, db
-from .helpers import upload_ewd, upload_correspondence,create_file_list
-from .models import EarlyWorksDoc, Correspondence, Uop_Bpd, Uop_spec
+#from .helpers import upload_ewd, upload_correspondence,create_file_list
 from flask_appbuilder.models.sqla.filters import FilterStartsWith, FilterEqualFunction, FilterEqual, FilterNotContains
 
-
+ 
 """
     DRASS Comments View Section
 """
@@ -18,7 +17,7 @@ from flask_appbuilder.models.sqla.interface import SQLAInterface
 from app.models import (Disciplinedras, Mocmodel, Dedocmodel, Unitmodel, 
                         Splitofworks, Drasdocument, Drasrevision, Drasissuetype,
                         Drasactionrequired, Drascommentsheet, Drascomment,
-                        Tagdiscipline)
+                        Tagdiscipline, Drasvendor, Drasmr)
 
 
 #from app import appbuilder, db
@@ -44,11 +43,7 @@ from app.comments.views import (DocumentView, RevisionView, CommentSheetView,
 """
     Early Works View Section 
 """
-class MidorewdDashboardView(BaseView):
-    default_view = 'midorewd'
-    @expose('/midorewd', methods=['POST', 'GET'])
-    def midorewd(self): 
-        return self.render_template('midorewd.html')
+
 
 class MidorDrasDashboardView(BaseView):
     default_view = 'dash_dras'
@@ -62,38 +57,6 @@ class MidorDras2DashboardView(BaseView):
     def dash_dras(self): 
         return self.render_template('dash_dras2.html')
 
-
-class EarlyWorksDocView(ModelView):
-    datamodel = SQLAInterface(EarlyWorksDoc)
-    list_columns = ['discipline', 'contractor_code', 'revision', 'short_desc','file']
-    #list_columns = ['contractor_code', 'short_desc','file']
-    #
-    #show_template = 'custom/showdoc.html'
-    list_template = 'listEwd.html'              
-
-class EarlyWorksDocViewRestricted(ModelView):
-    datamodel = SQLAInterface(EarlyWorksDoc)
-    list_columns = ['discipline', 'contractor_code','short_desc','file']
-    base_filters = [['unit',FilterNotContains,'11']]
-    list_template = 'listEwd.html'
-
-class CorrespondenceView(ModelView):
-    datamodel = SQLAInterface(Correspondence)
-    list_columns = ['document_code','doc_description','file']
-    list_template = 'listCrs.html'
-
-class Uop_BpdView(ModelView):
-    datamodel = SQLAInterface(Uop_Bpd)
-    list_columns = ['document_code', 'rev', 'doc_description', 'file']
-    list_template = 'listUop_bdp.html'
-
-class Uop_SpecView(ModelView):
-    datamodel = SQLAInterface(Uop_spec)
-    label_columns = {
-        'revision':'Rev'
-    }
-    list_columns = ['document_code', 'revision', 'doc_description', 'file']
-    list_template = 'listUop_spec.html' 
 
 class UnitView(ModelView):
     datamodel = SQLAInterface(Unitmodel)
@@ -239,6 +202,12 @@ class CommentSheetView(ModelView):
                     'actualDate', 
                     'expectedDate'], 'expanded': True}),
         
+        
+        (lazy_gettext('DRAS Material Requisition'),
+
+         {'fields': ['drasvendor','drasmr',], 'expanded': True}),
+                    
+        
         (lazy_gettext('DRAS Internal Info'),
 
          {'fields': ['note'], 
@@ -278,6 +247,11 @@ class CommentSheetView(ModelView):
                     'actualDate', 
                     'expectedDate'], 'expanded': True}),
         
+        (lazy_gettext('DRAS Material Requisition'),
+
+         {'fields': ['drasvendor','drasmr',], 'expanded': True}),
+
+        
         (lazy_gettext('DRAS Internal Info'),
 
          {'fields': ['note'], 
@@ -294,6 +268,10 @@ class CommentSheetView(ModelView):
                     'actualDate', 
                     'expectedDate',
                     'plannedDate'], 'expanded': True}),
+        
+        (lazy_gettext('DRAS Material Requisition'),
+
+         {'fields': ['drasvendor','drasmr',], 'expanded': True}),
         
         (lazy_gettext('DRAS Internal Info'),
          {'fields': ['note'], 
@@ -508,7 +486,9 @@ class DrasUploadView(ModelView):
         'actualDate': 'Actual Date', 
         'expectedDate': 'Expected Date',
         'plannedDate': 'Planned Date',
-        'cs_file': 'File'
+        'cs_file': 'File',
+        'drasvendor': 'Vendor',
+        'drasmr': 'MR'
     }
     
     add_fieldsets = [
@@ -516,7 +496,10 @@ class DrasUploadView(ModelView):
          {'fields': ['cs_file','current']}),
         
         (lazy_gettext('DRAS Notification'),
-         {'fields': ['issuetype', 
+         {'fields': [
+                    'drasvendor', 
+                    'drasmr', 
+                    'issuetype', 
                     'actionrequired', 
                     'notificationItem',
                     'actualDate', 
@@ -574,6 +557,13 @@ class TagdisciplineView(ModelView):
     datamodel = SQLAInterface(Tagdiscipline)
     list_columns = ['name','start','finish']
 
+class DrasVendorView(ModelView):
+    datamodel = SQLAInterface(Drasvendor)
+    list_columns = ['name']
+
+class DrasMrView(ModelView):
+    datamodel = SQLAInterface(Drasvendor)
+    list_columns = ['name']
 #appbuilder.add_view(RevisionView,'Revision',icon="fa-folder-open-o", category="DRAS", category_icon='fa-envelope')
 
 
@@ -589,12 +579,6 @@ def page_not_found(e):
 appbuilder.add_view(MidorDrasDashboardView, "Comments", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras2DashboardView, "DRAS", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 
-appbuilder.add_view(EarlyWorksDocView, "Engineering Documents", icon="fa-folder-open-o", category="Early Works", category_icon='fa-envelope')
-appbuilder.add_view(EarlyWorksDocViewRestricted, "Engineering Documents PMC", icon="fa-folder-open-o", category="Early Works", category_icon='fa-envelope')
-appbuilder.add_view(CorrespondenceView, "Correspondence", icon="fa-folder-open-o", category="Early Works", category_icon='fa-envelope')
-appbuilder.add_view(Uop_BpdView, "UOP BDP List", icon="fa-folder-open-o", category="Early Works", category_icon='fa-envelope')
-appbuilder.add_view(Uop_SpecView, "UOP Std. Specification", icon="fa-folder-open-o", category="Early Works", category_icon='fa-envelope')
-
 
 appbuilder.add_view(MainOperatingCenterView, 'Main Operating Centers',icon="fa-folder-open-o", category="DRAS Components")
 
@@ -607,6 +591,9 @@ appbuilder.add_view(TagdisciplineView, 'Tags',icon="fa-folder-open-o", category=
 
 
 appbuilder.add_view(SowView, 'Split of Works',icon="fa-folder-open-o", category="DRAS Components")
+
+appbuilder.add_view(DrasVendorView, 'Vendors',icon="fa-folder-open-o", category="DRAS Components")
+appbuilder.add_view(DrasMrView, 'MR',icon="fa-folder-open-o", category="DRAS Components")
 
 appbuilder.add_view(DrasdocumentView, 'Document', icon="fa-folder-open-o",category="DRAS DCC", category_icon='fa-envelope')
 
