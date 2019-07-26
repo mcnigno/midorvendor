@@ -562,7 +562,7 @@ class DrasVendorView(ModelView):
     list_columns = ['name']
 
 class DrasMrView(ModelView):
-    datamodel = SQLAInterface(Drasvendor)
+    datamodel = SQLAInterface(DrasMrView)
     list_columns = ['name']
 #appbuilder.add_view(RevisionView,'Revision',icon="fa-folder-open-o", category="DRAS", category_icon='fa-envelope')
 
