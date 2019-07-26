@@ -29,7 +29,7 @@ from app.comments.helpers import update_data_from_cs
 #from app.comments.ListeXLSX.helpers import add_moc, add_unit
 #import app.comments.ListeXLSX.helpers
 from flask_babel import lazy_gettext
-
+from app.init_helpers import init_dras
 
 #from app.init_helpers import fakeItem3
 
@@ -560,10 +560,16 @@ class TagdisciplineView(ModelView):
 class DrasVendorView(ModelView):
     datamodel = SQLAInterface(Drasvendor)
     list_columns = ['name']
+    add_columns = ['name','description']
+    edit_columns = ['name','description']
+    show_columns = ['name','description']
 
-class DrasMrView(ModelView):
-    datamodel = SQLAInterface(DrasMrView)
+class DrasMrView(ModelView): 
+    datamodel = SQLAInterface(Drasmr)
     list_columns = ['name']
+    add_columns = ['name','description']
+    edit_columns = ['name','description']
+    show_columns = ['name','description']
 #appbuilder.add_view(RevisionView,'Revision',icon="fa-folder-open-o", category="DRAS", category_icon='fa-envelope')
 
 
@@ -641,4 +647,5 @@ db.create_all()
 #upload_ewd()
 #create_file_list()
 #upload_correspondence()
-#fakeItem3(1)  
+#fakeItem3(1)    
+init_dras()
