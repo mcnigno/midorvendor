@@ -185,16 +185,16 @@ class Drasissuetype(Model, AuditMixin):
 
 class Drasvendor(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    description = Column(String(50))
+    name = Column(String(150))
+    description = Column(String(250))
 
     def __repr__(self):
         return self.name
 
 class Drasmr(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    description = Column(String(50))
+    name = Column(String(150))
+    description = Column(String(250))
 
     def __repr__(self):
         return self.name
@@ -218,7 +218,7 @@ class Drascommentsheet(Model, AuditMixin):
     contractorTransmittalReference = Column(    String(50))
     contractorTransmittalDate = Column(         Date)
     contractorTransmittalMr = Column(           String(50))
-    contractorTransmittalVendor = Column(       String(50))
+    contractorTransmittalVendor = Column(       String(150))
 
     documentReferenceDoc = Column(              String(50))
     documentReferenceRev = Column(              String(50))
