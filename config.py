@@ -7,7 +7,7 @@ SECRET_KEY = '\2\1thisismyscretkey\1\2\e\y\y\h'
 
 # The SQLAlchemy connection string.
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'app.db')
-SQLALCHEMY_DATABASE_URI = 'mysql://doadmin:etp65cb0a9q9yzs5@private-db-mysql-ams3-46424-do-user-3226236-0.db.ondigitalocean.com:25060/defaultdb?ssl-mode=REQUIRED'
+SQLALCHEMY_DATABASE_URI = 'mysql://midorv:midorv300777@localhost/midorvendor'
 #SQLALCHEMY_DATABASE_URI = 'postgresql://root:password@localhost/myapp'
 
 # Flask-WTF flag for CSRF
