@@ -1190,13 +1190,15 @@ def get_vendor_data_from_cs(item):
     item.documentReferenceBy = csSheet['L11'].value
 
     #item.documentReferenceBy = fdiscipline
-    indoor = ['Y','Y2']
-    outdoor = ['S','Y1','Y3','YF']
+
+    indoor = ['S','Y','Y2']
+    outdoor = ['Y1','Y3']
 
     if rev_stage in indoor: 
-        item.expectedDate = item.actualDate + timedelta(days=7)
-    if rev_stage in outdoor:
         item.expectedDate = item.actualDate + timedelta(days=14)
+    if rev_stage in outdoor:
+        item.expectedDate = item.actualDate + timedelta(days=7)
+    
     
     '''
     BODY - CREATE NEW COMMENTS FOR THIS CS
@@ -1258,12 +1260,15 @@ def get_vendor_data_from_cs(item):
                 session.add(comment)
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
 
-        session.commit()
-        return doc.id
+    except:
+        session.rollback()
+        
+        flash('COMMENTS ERROR 003 | Non è stato possibile caricare i commenti per questo DRAS', category='warning')
+        item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
     
-    except:
-        abort(400,'Error - Data in Table badly formatted :( - check your file !')
-     
+    
+    session.commit()
+    return doc.id     
 
 

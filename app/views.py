@@ -497,13 +497,14 @@ class DrasUploadView(ModelView):
         
         (lazy_gettext('DRAS Notification'),
          {'fields': [
-                    'drasvendor', 
-                    'drasmr', 
+                    #'drasvendor', 
+                    #'drasmr', 
                     'issuetype', 
                     'actionrequired', 
                     'notificationItem',
                     'actualDate', 
-                    'expectedDate'], 'expanded': True}),
+                    #'expectedDate'
+                    ], 'expanded': True}),
         
         (lazy_gettext('DRAS Internal Info'),
          {'fields': ['note'], 
