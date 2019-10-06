@@ -1098,121 +1098,127 @@ def get_vendor_data_from_cs(item):
         print(' -----  OC unit  ---- - - - - ',csSheet['L8'].value.split('-')[1] )
         project = '2544' 
 
+    
+
+        doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+        
+        if doc is None:
+            #fake Discipline
+            
+            discipline = csSheet['L11'].value
+
+            print('DOC is NONE *-----------           ************')
+            moc, dedoc = get_oc(oc_unit, discipline)
+            print('MOC - DEDOC ', moc, dedoc)
+            doc = Drasdocument(name=document, moc_id=moc, dedoc_id=dedoc)
+            session.add(doc)
+            print('Document',doc.name)
+
+        # session flush for doc id
+        # search the same rev for this document by doc id
+        
+        rev = session.query(Drasrevision).filter(Drasrevision.name == revision, Drasrevision.drasdocument_id == doc.id).first() 
+        print('searching for revision, document:', revision, document)
+        print('found', rev)
+        if rev is None:
+            print(rev)
+            print('    ----------     Rev is None: ', revision, rev_stage, document)
+            rev = Drasrevision(name=revision, drasdocument=doc)
+            session.add(rev)
+            
+        rev.stage = rev_stage
+        #Check If this DRAS STAGE already exist
+        ds = session.query(Drascommentsheet).filter(
+            Drascommentsheet.drasdocument_id == doc.id,
+            Drascommentsheet.drasrevision_id == rev.id,
+            Drascommentsheet.stage == rev_stage
+        ).first()
+        if ds:
+            print(doc.id, rev.id, rev_stage)
+            flash('This DRAS Stage already Exist', category='info')
+
+            abort(409)
+
+
+        
+        session.flush()
+
+        #
+        #  SET VENDOR AND MR RELATION
+        #
+        
+        vendor = session.query(Drasvendor).filter(Drasvendor.name == csSheet['H11'].value).first()
+        mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
+        if vendor is None:
+            vendor = Drasvendor(
+                name = csSheet['H11'].value,
+                created_by_fk = '1',
+                changed_by_fk = '1',
+            )
+        if mr is None:
+            mr = Drasmr(
+                name = csSheet['H10'].value,
+                created_by_fk = '1',
+                changed_by_fk = '1',
+                drasvendor = vendor
+            )
+
+        #
+        #    HEADER - UPDATE THE COMMENT SHEET
+        #
+
+        item.drasrevision_id = rev.id
+        item.drasdocument_id = doc.id
+        item.drasvendor = vendor
+        item.drasmr = mr
+
+        item.ownerTransmittalReference = csSheet['C9'].value
+        item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
+        item.response_status = csSheet['C12'].value
+
+        item.contractorTransmittalReference = csSheet['H8'].value
+        item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
+        item.contractorTransmittalMr = csSheet['H10'].value
+        item.contractorTransmittalVendor = csSheet['H11'].value
+
+        item.documentReferenceDoc = csSheet['L8'].value
+        item.documentReferenceRev = csSheet['L9'].value
+        item.documentReferenceDesc = csSheet['L10'].value
+        
+        # Discipline
+        item.documentReferenceBy = csSheet['L11'].value
+
+        #
+        # SET EXPECTED DATE BASED ON STAGE
+        #
+
+        indoor = ['S','Y','Y2']
+        outdoor = ['Y1','Y3']
+
+        if rev_stage in indoor: 
+            item.expectedDate = item.actualDate + timedelta(days=14)
+        if rev_stage in outdoor:
+            item.expectedDate = item.actualDate + timedelta(days=7)
+        
+        #
+        # SET DRAS AS CURRENT
+        #
+
+        if item.current:
+            session.query(Drascomment).filter(Drascomment.drasdocument_id == doc.id).delete()
+            
+            commentSheets = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == doc.id).all()
+            item.stage = rev_stage
+
+            for cs in commentSheets:
+                cs.current = False
     except:
-        abort(400, 'Error in file name. Check Your File!')
-
-    doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
-    
-    if doc is None:
-        #fake Discipline
-        
-        discipline = csSheet['L11'].value
-
-        print('DOC is NONE *-----------           ************')
-        moc, dedoc = get_oc(oc_unit, discipline)
-        print('MOC - DEDOC ', moc, dedoc)
-        doc = Drasdocument(name=document, moc_id=moc, dedoc_id=dedoc)
-        session.add(doc)
-        print('Document',doc.name)
-
-    # session flush for doc id
-    # search the same rev for this document by doc id
-    
-    rev = session.query(Drasrevision).filter(Drasrevision.name == revision, Drasrevision.drasdocument_id == doc.id).first() 
-    print('searching for revision, document:', revision, document)
-    print('found', rev)
-    if rev is None:
-        print(rev)
-        print('    ----------     Rev is None: ', revision, rev_stage, document)
-        rev = Drasrevision(name=revision, drasdocument=doc)
-        session.add(rev)
-        
-    rev.stage = rev_stage
-    #Check If this DRAS STAGE already exist
-    ds = session.query(Drascommentsheet).filter(
-        Drascommentsheet.drasdocument_id == doc.id,
-        Drascommentsheet.drasrevision_id == rev.id,
-        Drascommentsheet.stage == rev_stage
-    ).first()
-    if ds:
-        print(doc.id, rev.id, rev_stage)
-        flash('This DRAS Stage already Exist', category='info')
-
-        abort(409)
-
-
-     
-    session.flush()
-    '''
-        VENDOR AND MR RELATION
-    '''
+        abort(400, 'Error: problemi nella header del DRAS. Controllare il file.')    
     
     
-    vendor = session.query(Drasvendor).filter(Drasvendor.name == csSheet['H11'].value).first()
-    mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
-    if vendor is None:
-        vendor = Drasvendor(
-            name = csSheet['H11'].value,
-            created_by_fk = '1',
-            changed_by_fk = '1',
-        )
-    if mr is None:
-        mr = Drasmr(
-            name = csSheet['H10'].value,
-            created_by_fk = '1',
-            changed_by_fk = '1',
-            drasvendor = vendor
-        )
-
-    '''
-        HEADER - UPDATE THE COMMENT SHEET
-    '''
-
-    item.drasrevision_id = rev.id
-    item.drasdocument_id = doc.id
-    item.drasvendor = vendor
-    item.drasmr = mr
-
-    item.ownerTransmittalReference = csSheet['C9'].value
-    item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
-    item.response_status = csSheet['C12'].value
-
-    item.contractorTransmittalReference = csSheet['H8'].value
-    item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
-    item.contractorTransmittalMr = csSheet['H10'].value
-    item.contractorTransmittalVendor = csSheet['H11'].value
-
-    item.documentReferenceDoc = csSheet['L8'].value
-    item.documentReferenceRev = csSheet['L9'].value
-    item.documentReferenceDesc = csSheet['L10'].value
-    
-    # Discipline
-    item.documentReferenceBy = csSheet['L11'].value
-
-    #item.documentReferenceBy = fdiscipline
-
-    indoor = ['S','Y','Y2']
-    outdoor = ['Y1','Y3']
-
-    if rev_stage in indoor: 
-        item.expectedDate = item.actualDate + timedelta(days=14)
-    if rev_stage in outdoor:
-        item.expectedDate = item.actualDate + timedelta(days=7)
-    
-    
-    '''
-    BODY - CREATE NEW COMMENTS FOR THIS CS
-    '''
-    
-    if item.current:
-        session.query(Drascomment).filter(Drascomment.drasdocument_id == doc.id).delete()
-        
-        commentSheets = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == doc.id).all()
-        item.stage = rev_stage
-
-        for cs in commentSheets:
-            cs.current = False
-    
+    #
+    # BODY - CREATE NEW COMMENTS FOR THIS CS
+    #   
 
     try:
         for row in csSheet.iter_rows(min_row=17,min_col=2):
@@ -1250,12 +1256,7 @@ def get_vendor_data_from_cs(item):
                 )
 
                 if item.current:
-                    print('BLOCKED HERE ------------------ //////////////////////')
-  
-                    
                     comment.drasdocument_id = doc.id
-                    
-
                 #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
                 session.add(comment)
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
@@ -1266,8 +1267,6 @@ def get_vendor_data_from_cs(item):
         flash('COMMENTS ERROR 003 | Non è stato possibile caricare i commenti per questo DRAS', category='warning')
         item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
-    
-    
     session.commit()
     return doc.id     
 

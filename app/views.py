@@ -439,8 +439,8 @@ class DrasdocumentView(ModelView):
     related_views = [CommentSheetView, RevisionView, CommentView]
     show_template = 'appbuilder/general/model/show_cascade.html'
 
-    list_columns = ['name','moc','dedoc', 'open_comm' ] 
-    show_columns = ['title_name','description', 'moc','dedoc','current_rev','current_stage']
+    list_columns = ['name','moc', 'open_comm' ] 
+    show_columns = ['title_name','description', 'moc','current_rev','current_stage']
     show_title = 'Show Document'
     list_title = 'List Document'
     add_title = 'Add Document'

@@ -104,14 +104,15 @@ class Drasdocument(Model, AuditMixin):
         return len(open_comm)
 
     def title_name(self):
-        return Markup('<span class="document_title">' + self.name + '</span>')
+        return Markup('<span class="document_title">' + self.name +  '</span>')
 
     def current_rev(self):
         session = db.session
         cs = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == self.id,
                                             Drascommentsheet.current == True).first()
         if cs:
-            return cs.drasrevision
+            #return str(cs.drasrevision) + ' | by ' +  '<strong>' + str(cs.drasvendor.name) + '</strong>'
+            return Markup('<span>'+ str(cs.drasrevision) + ' | by ' +'<strong>' + str(cs.drasvendor.name) + '</strong>')
         return "Not Found"
     
     def description(self):
@@ -257,6 +258,7 @@ class Drascommentsheet(Model, AuditMixin):
 
     def __repr__(self):
         return str(self.id)
+
     
     def filename(self):
         return get_file_original_name(self.cs_file)
