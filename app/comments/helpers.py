@@ -79,20 +79,20 @@ def update_data_from_cs(item):
     DRAS_2544-17-DW-0510-04_CY.xlsx
     '''
     try:
-        document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
+        document = item.drasdocument
         
     except:
         return abort(400, 'Error in your File Name.')
     #doc = session.query(Document).filter(Document.id == item.document_id).first()
 
-    rev = session.query(Drasrevision).filter(Drasrevision.id == item.drasrevision_id).first()
-    
+    #rev = session.query(Drasrevision).filter(Drasrevision.id == item.drasrevision_id).first()
+    rev = item.drasrevision
         
     rev.stage = item.stage
     
     print(rev.id)
     #print(doc.id)
-    session.flush()
+    #session.flush()
     print(rev.id)
     #print(doc.id)
 
@@ -134,11 +134,11 @@ def update_data_from_cs(item):
         
         
 
-        doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
-        session.query(Drascomment).filter(Drascomment.drasdocument_id == doc.id).delete()
-        print('Document',doc.id, doc.name)
+        #doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+        session.query(Drascomment).filter(Drascomment.drasdocument_id == document.id).delete()
+        #print('Document',doc.id, doc.name)
         cs_list = session.query(Drascommentsheet).filter( 
-                                    Drascommentsheet.drasdocument_id == doc.id,
+                                    Drascommentsheet.drasdocument_id == document.id,
                                     Drascommentsheet.current == True).all()
         #item.stage = rev_stage
         for cs in cs_list:  
@@ -183,9 +183,9 @@ def update_data_from_cs(item):
                 print(item.current)
                 if item.current == True:
                     
-                    comment.drasdocument_id = doc.id
+                    comment.drasdocument_id = document.id
                     
-                    print(comment.drasdocument_id, doc.id)
+                    print(comment.drasdocument_id, document.id)
                     
 
                 
@@ -1065,5 +1065,193 @@ def update_discipline():
     
 
 #update_discipline() 
+
+from app.models import Drasvendor, Drasmr
+ 
+def get_vendor_data_from_cs(item):
+    #item ='4def885a-604b-11e9-bffd-ac87a32187da_sep_DRAS_2544-17-DW-0510-04_CY.xlsx'
+    session = db.session
+    
+    
+    csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
+    csSheet = csFile.active
+ 
+    print('--------       Query -|')
+    '''
+    # Check If a revision for this document already exist
+    DRAS_2544-17-DW-0510-04_CY.xlsx
+    '''
+    try:
+        #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
+        document = csSheet['L8'].value
+        full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[1].split('.')[0]
+        print('Heeeeeeeeeeeere ********************' )
+        
+        try:
+            revision = full_revision[:full_revision.index('S')]
+            rev_stage = full_revision[full_revision.index('S'):]
+        except:
+            revision = full_revision[:full_revision.index('Y')]
+            rev_stage = full_revision[full_revision.index('Y'):]
+
+        oc_unit = csSheet['H10'].value.split('-')[1]
+        print(' -----  OC unit  ---- - - - - ',csSheet['L8'].value.split('-')[1] )
+        project = '2544' 
+
+    except:
+        abort(400, 'Error in file name. Check Your File!')
+
+    doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+    
+    if doc is None:
+        #fake Discipline
+        
+        discipline = csSheet['L11'].value
+
+        print('DOC is NONE *-----------           ************')
+        moc, dedoc = get_oc(oc_unit, discipline)
+        print('MOC - DEDOC ', moc, dedoc)
+        doc = Drasdocument(name=document, moc_id=moc, dedoc_id=dedoc)
+        session.add(doc)
+        print('Document',doc.name)
+
+    # session flush for doc id
+    # search the same rev for this document by doc id
+    
+    rev = session.query(Drasrevision).filter(Drasrevision.name == revision, Drasrevision.drasdocument_id == doc.id).first() 
+    print('searching for revision, document:', revision, document)
+    print('found', rev)
+    if rev is None:
+        print(rev)
+        print('    ----------     Rev is None: ', revision, rev_stage, document)
+        rev = Drasrevision(name=revision, drasdocument=doc)
+        session.add(rev)
+        
+    rev.stage = rev_stage
+    
+     
+    session.flush()
+    '''
+        VENDOR AND MR RELATION
+    '''
+    
+    
+    vendor = session.query(Drasvendor).filter(Drasvendor.name == csSheet['H11'].value).first()
+    mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
+    if vendor is None:
+        vendor = Drasvendor(
+            name = csSheet['H11'].value,
+            created_by_fk = '1',
+            changed_by_fk = '1',
+        )
+    if mr is None:
+        mr = Drasmr(
+            name = csSheet['H10'].value,
+            created_by_fk = '1',
+            changed_by_fk = '1',
+            drasvendor = vendor
+        )
+
+    '''
+        HEADER - UPDATE THE COMMENT SHEET
+    '''
+
+    item.drasrevision_id = rev.id
+    item.drasdocument_id = doc.id
+    item.drasvendor = vendor
+    item.drasmr = mr
+
+    item.ownerTransmittalReference = csSheet['C9'].value
+    item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
+    item.response_status = csSheet['C12'].value
+
+    item.contractorTransmittalReference = csSheet['H8'].value
+    item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
+    item.contractorTransmittalMr = csSheet['H10'].value
+    item.contractorTransmittalVendor = csSheet['H11'].value
+
+    item.documentReferenceDoc = csSheet['L8'].value
+    item.documentReferenceRev = csSheet['L9'].value
+    item.documentReferenceDesc = csSheet['L10'].value
+    
+    # Discipline
+    item.documentReferenceBy = csSheet['L11'].value
+
+    #item.documentReferenceBy = fdiscipline
+    indoor = ['Y','Y2']
+    outdoor = ['S','Y1','Y3','YF']
+
+    if rev_stage in indoor: 
+        item.expectedDate = item.actualDate + timedelta(days=7)
+    if rev_stage in outdoor:
+        item.expectedDate = item.actualDate + timedelta(days=14)
+    
+    '''
+    BODY - CREATE NEW COMMENTS FOR THIS CS
+    '''
+    
+    if item.current:
+        session.query(Drascomment).filter(Drascomment.drasdocument_id == doc.id).delete()
+        
+        commentSheets = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == doc.id).all()
+        item.stage = rev_stage
+
+        for cs in commentSheets:
+            cs.current = False
+    
+
+    try:
+        for row in csSheet.iter_rows(min_row=17,min_col=2):
+            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value))
+            
+            if row[0].value is not None and row[1].value is not None:
+                print(row[0].value)
+                #  
+                comment = Drascomment(
+                    drasrevision_id = rev.id,
+                    drascommentsheet = item,
+                    tagdiscipline= session.query(Tagdiscipline).filter(
+                                                Tagdiscipline.start <= int(row[1].value), 
+                                                Tagdiscipline.finish >= int(row[1].value)).first(), 
+
+                    pos = row[0].value,
+                    tag = row[1].value,
+                    info = row[2].value,
+                    ownerCommentBy = row[3].value,
+                    ownerCommentDate = date_parse(csSheet['F15'].value),
+                    ownerCommentComment = row[4].value,
+
+                    contractorReplyDate = date_parse(csSheet['H15'].value),
+                    contractorReplyStatus = row[5].value,
+                    contractorReplyComment = row[6].value,
+                    
+                    ownerCounterReplyDate = date_parse(csSheet['K15'].value),
+                    ownerCounterReplyComment = row[8].value,
+
+                    finalAgreementDate = date_parse(csSheet['M15'].value),
+                    finalAgreemntCommentDate = date_parse(row[10].value),
+                    finalAgreementComment = row[11].value,
+
+                    commentStatus = str(row[12].value),
+                )
+
+                if item.current:
+                    print('BLOCKED HERE ------------------ //////////////////////')
+  
+                    
+                    comment.drasdocument_id = doc.id
+                    
+
+                #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
+                session.add(comment)
+        #session.query(Comment).filter(Comment.document_id == doc.id).delete()
+
+        session.commit()
+        return doc.id
+
+    
+    except:
+        abort(400,'Error - Data in Table badly formatted :( - check your file !')
+     
 
 

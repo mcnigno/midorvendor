@@ -19,10 +19,6 @@ def date_parse(date):
 
     return datetime.strptime(date,'%d/%m/%y')
 
-
-
-    
-
 def check_extension(document_code, file_dict):
     
     if file_dict:

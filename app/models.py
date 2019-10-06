@@ -196,7 +196,7 @@ class Drasmr(Model, AuditMixin):
     name = Column(String(150))
     description = Column(String(250))
 
-    drasvendor_id = Column(Integer, ForeignKey('drasvendor.id'))
+    drasvendor_id = Column(Integer, ForeignKey('drasvendor.id'), nullable=False)
     drasvendor = relationship(Drasvendor)
 
     def __repr__(self):

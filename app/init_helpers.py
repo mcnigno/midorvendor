@@ -185,6 +185,37 @@ def splitOfWorks():
             session.add(sow)
     session.commit()
 
+from .models import Drasvendor, Drasmr
+def add_mrvendor():
+    path = UPLOAD_FOLDER + 'init/MRVendor.xlsx'
+    workbook = openpyxl.load_workbook(path)
+    worksheet = workbook.active
+    session = db.session
+    
+
+    for row in worksheet.iter_rows(min_row=2):
+        print(row[0].value,row[1].value)
+        vendor = session.query(Drasvendor).filter(
+            Drasvendor.name == row[1].value
+        ).first()
+        if vendor is None:
+            vendor = Drasvendor(
+                name=row[1].value,
+                changed_by_fk='1',
+                created_by_fk='1')
+            #session.add(vendor)
+            
+        mr = Drasmr(
+            name=row[0].value,
+            description=row[2].value,
+            drasvendor=vendor,
+            changed_by_fk='1',
+            created_by_fk='1'
+        )
+        session.add(mr)
+    session.commit()
+
+#add_mrvendor()
 def init_dras():
     session = db.session
 
@@ -201,6 +232,8 @@ def init_dras():
     session.query(Unitmodel).delete()
     session.query(Dedocmodel).delete()
     session.query(Mocmodel).delete()
+    session.query(Drasmr).delete()
+    session.query(Drasvendor).delete()
     
     print('Initialization Start from:', path)
     print('')
@@ -227,6 +260,9 @@ def init_dras():
 
     print('               -----  Split Of Works Init...')
     splitOfWorks()
+    
+    print('               -----  MR for Vendor List Init...')
+    add_mrvendor()
     
     print('                ok    Init is Done')
   

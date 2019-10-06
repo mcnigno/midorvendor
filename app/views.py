@@ -458,7 +458,7 @@ class DrasdocumentView(ModelView):
 
          
     }
-
+from app.comments.helpers import get_vendor_data_from_cs
 class DrasUploadView(ModelView):
     datamodel = SQLAInterface(Drascommentsheet)
     add_title = 'DRAS Upload'
@@ -520,7 +520,7 @@ class DrasUploadView(ModelView):
         
         # Check File Requirements
         check_labels(item)
-        doc = get_data_from_cs(item) 
+        doc = get_vendor_data_from_cs(item) 
         
         if session['last_document']:
             session['last_document'] = doc
@@ -557,19 +557,23 @@ class TagdisciplineView(ModelView):
     datamodel = SQLAInterface(Tagdiscipline)
     list_columns = ['name','start','finish']
 
+class DrasMrView(ModelView): 
+    datamodel = SQLAInterface(Drasmr)
+    list_columns = ['name','description','drasvendor']
+    add_columns = ['name','description','drasvendor']
+    edit_columns = ['name','description','drasvendor']
+    show_columns = ['name','description','drasvendor']
+
 class DrasVendorView(ModelView):
     datamodel = SQLAInterface(Drasvendor)
+    related_views = [DrasMrView]
+    show_template = 'appbuilder/general/model/show_cascade.html'
     list_columns = ['name']
     add_columns = ['name','description']
     edit_columns = ['name','description']
     show_columns = ['name','description']
 
-class DrasMrView(ModelView): 
-    datamodel = SQLAInterface(Drasmr)
-    list_columns = ['name']
-    add_columns = ['name','description']
-    edit_columns = ['name','description']
-    show_columns = ['name','description']
+
 #appbuilder.add_view(RevisionView,'Revision',icon="fa-folder-open-o", category="DRAS", category_icon='fa-envelope')
 
 
