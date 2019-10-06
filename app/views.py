@@ -522,9 +522,8 @@ class DrasUploadView(ModelView):
         check_labels(item)
         doc = get_vendor_data_from_cs(item) 
         
-        if session['last_document']:
-            session['last_document'] = doc
-            print('PRE ADD FUNCTION ************ ',session['last_document'] )
+        session['last_document'] = doc
+        print('PRE ADD FUNCTION ************ ',session['last_document'] )
         
 
         if doc == False:
@@ -532,9 +531,9 @@ class DrasUploadView(ModelView):
 
         
 
-    def pre_update(self, item):
-        if session['last_document']:
-            session['last_document'] = item.drasdocument_id
+    #def pre_update(self, item):
+        
+        #session['last_document'] = item.drasdocument_id
         
         
         # Find or Create Document
@@ -545,10 +544,10 @@ class DrasUploadView(ModelView):
         # Override this function to control the redirect after add endpoint is called.
         try:
             if session['last_document']:
-                doc = session['last_document']
+                doc_id = session['last_document']
                 #print('POST EDIT FUNCTION ************ ',session['last_document'] )
 
-                return redirect(url_for('DrasdocumentView.show', pk=doc))
+                return redirect(url_for('DrasdocumentView.show', pk=doc_id))
         except:
             print('Something still does not work for session')
             return redirect(self.get_redirect())
