@@ -235,10 +235,10 @@ class Drascommentsheet(Model, AuditMixin):
     
     documentClientCode = Column(String(50))
 
-    issuetype_id = Column(Integer, ForeignKey('drasissuetype.id'))
+    issuetype_id = Column(Integer, ForeignKey('drasissuetype.id'), nullable=False)
     issuetype = relationship(Drasissuetype)
 
-    actionrequired_id = Column(Integer, ForeignKey('drasactionrequired.id'))
+    actionrequired_id = Column(Integer, ForeignKey('drasactionrequired.id'), nullable=False)
     actionrequired = relationship(Drasactionrequired)
 
     drasvendor_id = Column(Integer, ForeignKey('drasvendor.id'))
@@ -247,8 +247,8 @@ class Drascommentsheet(Model, AuditMixin):
     drasmr_id = Column(Integer, ForeignKey('drasmr.id'))
     drasmr = relationship(Drasmr) 
 
-    notificationItem = Column(String(50))
-    actualDate = Column(Date)
+    notificationItem = Column(String(50), nullable=False)
+    actualDate = Column(Date, nullable=False)
     expectedDate = Column(Date)
     plannedDate = Column(Date)
 
