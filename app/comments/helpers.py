@@ -1128,7 +1128,19 @@ def get_vendor_data_from_cs(item):
         session.add(rev)
         
     rev.stage = rev_stage
-    
+    #Check If this DRAS STAGE already exist
+    ds = session.query(Drascommentsheet).filter(
+        Drascommentsheet.drasdocument_id == doc.id,
+        Drascommentsheet.drasrevision_id == rev.id,
+        Drascommentsheet.stage == rev_stage
+    ).first()
+    if ds:
+        print(doc.id, rev.id, rev_stage)
+        flash('This DRAS Stage already Exist', category='info')
+
+        abort(409)
+
+
      
     session.flush()
     '''
