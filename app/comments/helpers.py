@@ -1149,7 +1149,7 @@ def get_vendor_data_from_cs(item):
         
         vendor = session.query(Drasvendor).filter(Drasvendor.name == csSheet['H11'].value).first()
         mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
-        if vendor is None:
+        if vendor is None:    
             vendor = Drasvendor(
                 name = csSheet['H11'].value,
                 created_by_fk = '1',
@@ -1213,7 +1213,7 @@ def get_vendor_data_from_cs(item):
             for cs in commentSheets:
                 cs.current = False
     except:
-        abort(400, 'Error: problemi nella header del DRAS. Controllare il file.')    
+        abort(400, 'DRAS Error: controllare i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unità. ')    
     
     
     #

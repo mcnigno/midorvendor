@@ -139,7 +139,8 @@ class CommentSheetView(ModelView):
     show_title = 'Show DRAS' 
     add_columns = ['cs_file', 'current'] 
     order_columns = ['actualDate']
-    base_order = ('actualDate','asc') 
+    base_order = ('actualDate','asc')
+     
     list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem','response_status', 'is_current', 'download'] 
     label_columns = {
         'documentReferenceDoc':     'Document',
@@ -215,42 +216,14 @@ class CommentSheetView(ModelView):
     ]
 
     edit_fieldsets = [
-        (lazy_gettext('DRAS Info'),
-
-         {'fields': ['drasdocument', 'drasrevision']}),
-        
-        (lazy_gettext('Document Reference'),
-
-         {'fields': ['documentReferenceDoc', 
-                    'documentReferenceRev', 
-                    'documentReferenceDesc',
-                    'documentReferenceBy',
-                    'issuetype'], 'expanded': True}),
-        
-        (lazy_gettext('Owner Transmittal Reference'),
-
-         {'fields': [ 
-                    'response_status'], 
-                    'expanded': True}),
-        
-        (lazy_gettext('Contractor Trasmittal Reference'), 
-
-         {'fields': [ 
-                    'contractorTransmittalMr',
-                    'contractorTransmittalVendor',
-                    'actionrequired'], 
-                    'expanded': True}),
         
         (lazy_gettext('DRAS Notification'),
 
          {'fields': ['notificationItem',
                     'actualDate', 
-                    'expectedDate'], 'expanded': True}),
+                    'issuetype',
+                    'actionrequired'], 'expanded': True}),
         
-        (lazy_gettext('DRAS Material Requisition'),
-
-         {'fields': ['drasvendor','drasmr',], 'expanded': True}),
-
         
         (lazy_gettext('DRAS Internal Info'),
 
@@ -317,7 +290,7 @@ class CommentSheetView(ModelView):
             return abort(400, 'Pre Add Function Error.')
 
 
-
+    '''
     def pre_update(self, item):
         if session['last_document']:
             session['last_document'] = item.drasdocument_id
@@ -333,7 +306,7 @@ class CommentSheetView(ModelView):
             print('POST EDIT FUNCTION ************ ',session['last_document'] )
 
             return redirect(url_for('DrasdocumentView.show', pk=doc))
-
+    '''
 class CommentView(ModelView):
     datamodel = SQLAInterface(Drascomment)
     list_columns = ['tag','ownerCommentComment','contractorReplyStatus','contractorReplyComment','ownerCounterReplyComment','finalComment', 'commentStatus', 'pos']
