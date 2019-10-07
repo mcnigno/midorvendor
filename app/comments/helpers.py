@@ -1081,6 +1081,19 @@ def get_vendor_data_from_cs(item):
     # Check If a revision for this document already exist
     DRAS_2544-17-DW-0510-04_CY.xlsx
     '''
+    field_set = ['L8','L11','H10','H11']
+    try:
+        for field in field_set:
+            len(csSheet[field].value)
+    except:
+        abort(400,'Controllare le celle L8 L11 H10 H11 nel DRAS.')
+    
+    # Controlla se questa MR ha lo stesso fornitore.
+    mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
+    if mr and str(mr.drasvendor != csSheet['H11'].value):
+        abort(400,'Questa MR è stata assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
+
+    
     try:
         #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         document = csSheet['L8'].value
@@ -1149,13 +1162,15 @@ def get_vendor_data_from_cs(item):
         
         vendor = session.query(Drasvendor).filter(Drasvendor.name == csSheet['H11'].value).first()
         mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
-        if vendor is None:    
+        if vendor is None:
+                
             vendor = Drasvendor(
                 name = csSheet['H11'].value,
                 created_by_fk = '1',
                 changed_by_fk = '1',
             )
         if mr is None:
+            
             mr = Drasmr(
                 name = csSheet['H10'].value,
                 created_by_fk = '1',
