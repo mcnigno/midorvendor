@@ -152,7 +152,7 @@ class CommentSheetView(ModelView):
         'ownerTransmittalDate':     'Date', 
         'response_status':          'Status',
 
-        'contractorTransmittalReference':   'ID', 
+        'contractorTransmittalReference':   'Transmittal', 
         'contractorTransmittalDate':        'Date', 
         'contractorTransmittalMr':          'MR',
         'contractorTransmittalVendor':      'Vendor',
@@ -165,7 +165,9 @@ class CommentSheetView(ModelView):
         'expectedDate':             'Expected Date',
         'plannedDate':              'Planned Date',
         'drasdocument':             'Document',
-        'drasrevision':             'Revision'
+        'drasrevision':             'Revision',
+        'drasvendor':               'Vendor',
+        'drasmr':                   'Material Requisition'
     }
     
     show_fieldsets = [
@@ -175,38 +177,25 @@ class CommentSheetView(ModelView):
         
         (lazy_gettext('Document Reference'),
 
-         {'fields': ['documentReferenceDoc', 
-                    'documentReferenceRev', 
+         {'fields': [ 
                     'documentReferenceDesc',
                     'documentReferenceBy',
-                    'issuetype'], 'expanded': True}),
+                    'drasvendor','drasmr',
+                    'contractorTransmittalReference',
+                    ], 'expanded': True}),
         
-        (lazy_gettext('Owner Status'),
-
-         {'fields': [ 
-                    'response_status'], 
-                    'expanded': True}),
         
-        (lazy_gettext('Contractor Trasmittal Reference'), 
-
-         {'fields': [
-                    'contractorTransmittalDate',
-                    'contractorTransmittalReference', 
-                    'contractorTransmittalMr',
-                    'contractorTransmittalVendor',
-                    'actionrequired'], 
-                    'expanded': True}),
         
         (lazy_gettext('DRAS Notification'),
 
          {'fields': ['notificationItem',
+                    'issuetype',
                     'actualDate', 
-                    'expectedDate'], 'expanded': True}),
+                    'expectedDate','actionrequired',
+                    'response_status'], 'expanded': True}),
         
         
-        (lazy_gettext('DRAS Material Requisition'),
-
-         {'fields': ['drasvendor','drasmr',], 'expanded': True}),
+        
                     
         
         (lazy_gettext('DRAS Internal Info'),

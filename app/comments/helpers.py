@@ -1090,7 +1090,7 @@ def get_vendor_data_from_cs(item):
     
     # Controlla se questa MR ha lo stesso fornitore.
     mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
-    if mr and str(mr.drasvendor != csSheet['H11'].value):
+    if mr and str(mr.drasvendor) != csSheet['H11'].value: 
         abort(400,'Questa MR è stata assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
 
     
