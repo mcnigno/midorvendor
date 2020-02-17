@@ -191,7 +191,13 @@ def add_mrvendor():
     workbook = openpyxl.load_workbook(path)
     worksheet = workbook.active
     session = db.session
+    ### Delete all MRs and replace with the new ones
     
+    session.query(Drascomment).delete()
+    session.query(Drascommentsheet).delete()
+    session.query(Drasrevision).delete()
+    session.query(Drasdocument).delete()
+    session.query(Drasmr).delete()
 
     for row in worksheet.iter_rows(min_row=2):
         print(row[0].value,row[1].value)
