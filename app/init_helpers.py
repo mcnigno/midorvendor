@@ -221,7 +221,7 @@ def add_mrvendor():
         session.add(mr)
     session.commit()
 
-#add_mrvendor()
+add_mrvendor()
 def init_dras():
     session = db.session
 
