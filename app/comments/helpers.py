@@ -1227,6 +1227,8 @@ def get_vendor_data_from_cs(item):
 
             for cs in commentSheets:
                 cs.current = False
+        else:
+            item.stage = rev_stage
     except:
         abort(400, 'DRAS Error: controllare i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unità. ')    
     

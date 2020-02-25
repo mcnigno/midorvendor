@@ -120,7 +120,6 @@ class SowView(ModelView):
         else:
             self.datamodel.delete(items)
         return redirect(self.get_redirect())
-
   
 class IssueTypeView(ModelView):
     datamodel = SQLAInterface(Drasissuetype)
@@ -140,6 +139,12 @@ class CommentSheetView(ModelView):
     add_columns = ['cs_file', 'current'] 
     order_columns = ['actualDate']
     base_order = ('actualDate','asc')
+    search_columns = [  
+                        'documentReferenceDoc',
+                        'contractorTransmittalMr',
+                        'contractorTransmittalVendor',
+                        'contractorTransmittalReference'
+                        ]
      
     list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem','response_status', 'is_current', 'download'] 
     label_columns = {
@@ -400,7 +405,7 @@ class DrasdocumentView(ModelView):
     datamodel = SQLAInterface(Drasdocument)
     related_views = [CommentSheetView, RevisionView, CommentView]
     show_template = 'appbuilder/general/model/show_cascade.html'
-
+    search_columns = ['name']
     list_columns = ['name','moc', 'open_comm' ] 
     show_columns = ['title_name','description', 'moc','current_rev','current_stage']
     show_title = 'Show Document'
