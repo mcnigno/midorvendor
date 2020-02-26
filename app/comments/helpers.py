@@ -1113,7 +1113,7 @@ def get_vendor_data_from_cs(item):
             flash('H10 cell (MR) is none or blocked', category='info')
 
             abort(409)
-        print(' -----  OC unit  ---- - - - - ',csSheet['L8'].value.split('-')[1] )
+        #print(' -----  OC unit  ---- - - - - ',csSheet['L8'].value.split('-')[1] )
         project = '2544' 
 
     
