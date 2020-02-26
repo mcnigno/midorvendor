@@ -1106,8 +1106,13 @@ def get_vendor_data_from_cs(item):
         except:
             revision = full_revision[:full_revision.index('Y')]
             rev_stage = full_revision[full_revision.index('Y'):]
+        try:
+            oc_unit = csSheet['H10'].value.split('-')[1]
+        except:
+            print('H10 cell (MR) is none or blocked')
+            flash('H10 cell (MR) is none or blocked', category='info')
 
-        oc_unit = csSheet['H10'].value.split('-')[1]
+            abort(409)
         print(' -----  OC unit  ---- - - - - ',csSheet['L8'].value.split('-')[1] )
         project = '2544' 
 
