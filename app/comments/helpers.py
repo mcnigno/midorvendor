@@ -203,16 +203,14 @@ def get_oc(unit, discipline):
     session = db.session
     unit_id = session.query(Unitmodel).filter(Unitmodel.code == unit).first()
     discipline_id = session.query(Disciplinedras).filter(Disciplinedras.name == discipline).first()
-    
-    print(' ------- ----- ----  GET OC by UNIT and DISCIPLINE ----------')
-    print(unit, discipline)
-    print(unit_id, discipline_id)
 
     if unit_id and discipline_id:
         splitOfWorks = session.query(Splitofworks).filter(
                     Splitofworks.unit_id == unit_id.id,
                     Splitofworks.discipline_id == discipline_id.id).first()
-    
+        print(' ------- ----- ----  GET OC by UNIT and DISCIPLINE ----------')
+
+        print(unit_id.moc_id, splitOfWorks.oc_id)
         return unit_id.moc_id, splitOfWorks.oc_id
     if unit_id:
         return unit_id.moc_id, unit_id.dedoc_id
