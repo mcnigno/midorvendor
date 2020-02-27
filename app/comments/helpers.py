@@ -204,6 +204,10 @@ def get_oc(unit, discipline):
     unit_id = session.query(Unitmodel).filter(Unitmodel.code == unit).first()
     discipline_id = session.query(Disciplinedras).filter(Disciplinedras.name == discipline).first()
     
+    print(' ------- ----- ----  GET OC by UNIT and DISCIPLINE ----------')
+    print(unit, discipline)
+    print(unit_id, discipline_id)
+
     if unit_id and discipline_id:
         splitOfWorks = session.query(Splitofworks).filter(
                     Splitofworks.unit_id == unit_id.id,
