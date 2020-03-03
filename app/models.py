@@ -130,6 +130,25 @@ class Drasdocument(Model, AuditMixin):
         if cs:
             return cs.stage
         return "Stage Not Found"
+    
+    def current_mr(self):
+        session = db.session
+        cs = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == self.id,
+                                            Drascommentsheet.current == True).first()
+        if cs:
+            #return cs.drasmr
+            return Markup('<span class="mr">' + str(cs.drasmr) +  '</span>')
+        return "MR Not Found"
+    
+    def current_mr_description(self):
+        session = db.session
+        cs = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == self.id,
+                                            Drascommentsheet.current == True).first()
+        mr = cs.drasmr
+        if cs:
+            return mr.description
+        return "MR description Not Found"
+
 class Drasrevision(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
     name = Column(String(5), nullable=False)
@@ -265,6 +284,9 @@ class Drascommentsheet(Model, AuditMixin):
      
     def download(self):
         return Markup('<a href="' + url_for('CommentSheetView.download', filename=str(self.cs_file)) + '" download>'+'<img border="0" src="/static/img/excel.png" alt="W3Schools" width="24" height="24">'+'</a>')
+
+    def document_link(self):
+        return Markup('<a href="' + url_for('DrasdocumentView.show', pk=str(self.drasdocument_id)) + '">'+'<img border="0" src="/static/img/pngwave.png" alt="W3Schools" width="24" height="24">'+'</a>'+str(self.drasdocument))
 
     def stage_icon(self):
         if self.stage == 'Y' or self.stage == 'Y2':

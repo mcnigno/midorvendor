@@ -213,6 +213,7 @@ def get_oc(unit, discipline):
         print(unit_id.moc_id, splitOfWorks.oc_id)
         return unit_id.moc_id, splitOfWorks.oc_id
     if unit_id:
+        print(' ------- ----- ----  GET OC ONLY by UNIT --- NO DISCIPLINE ----------')
         return unit_id.moc_id, unit_id.dedoc_id
     return abort(400,'Unit not Found, check your file name.')
 

@@ -103,7 +103,10 @@ class SowView(ModelView):
 
 
     list_columns = ['unitmodel.code','unitmodel.name','disciplinedras.name','oc.moc','oc']
-    show_columns = list_columns = ['unitmodel.code','unitmodel.name','disciplinedras.name','oc.moc','oc']
+    show_columns = ['unitmodel.code','unitmodel.name','disciplinedras.name','oc.moc','oc']
+    edit_columns = ['oc']
+    #add_columns = ['unitmodel.code','unitmodel.name','disciplinedras.name','oc.moc','oc']
+ 
     label_columns = {
         'unitmodel.name':'Unit Title',
         'unitmodel.code':'Unit',
@@ -129,6 +132,46 @@ class ActionRequiredView(ModelView):
     datamodel = SQLAInterface(Drasactionrequired)
     list_columns = ['name']
 
+class CommentSheet2View(ModelView):
+    datamodel = SQLAInterface(Drascommentsheet)
+    list_title = 'List Current DRAS'
+    search_columns = [  
+                        'documentReferenceDoc',
+                        'contractorTransmittalMr',
+                        'contractorTransmittalVendor',
+                        'contractorTransmittalReference',
+                        'documentReferenceBy'
+                        ]
+    list_columns = ['document_link','drasrevision','stage_icon','contractorTransmittalMr', 'download']
+    label_columns = {
+        'documentReferenceDoc':     'Document',
+        'documentReferenceRev':     'Revision', 
+        'documentReferenceDesc':    'Description',
+        'documentReferenceBy':      'Discipline',
+
+        'ownerTransmittalReference':'ID', 
+        'ownerTransmittalDate':     'Date', 
+        'response_status':          'Status',
+
+        'contractorTransmittalReference':   'Transmittal', 
+        'contractorTransmittalDate':        'Date', 
+        'contractorTransmittalMr':          'MR',
+        'contractorTransmittalVendor':      'Vendor',
+        'stage_icon':'Stage',
+
+        'issuetype':                'Issue Type', 
+        'actionrequired':           'Action Required', 
+        'notificationItem':         'Notification Item',
+        'actualDate':               'Actual Date', 
+        'expectedDate':             'Expected Date',
+        'plannedDate':              'Planned Date',
+        'drasdocument':             'Document',
+        'drasrevision':             'Revision',
+        'drasvendor':               'Vendor',
+        'drasmr':                   'Material Requisition'
+    }
+    base_filters = [['current', FilterEqual,1]]
+    
 class CommentSheetView(ModelView):
     datamodel = SQLAInterface(Drascommentsheet)
     add_title = 'View DRAS'
@@ -146,7 +189,7 @@ class CommentSheetView(ModelView):
                         'contractorTransmittalReference'
                         ]
      
-    list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem','response_status', 'is_current', 'download'] 
+    list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem', 'is_current', 'download'] 
     label_columns = {
         'documentReferenceDoc':     'Document',
         'documentReferenceRev':     'Revision', 
@@ -407,7 +450,7 @@ class DrasdocumentView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     search_columns = ['name']
     list_columns = ['name','moc', 'open_comm' ] 
-    show_columns = ['title_name','description', 'moc','current_rev','current_stage']
+    show_columns = ['title_name','description', 'moc','current_mr','current_mr_description','current_rev','current_stage']
     show_title = 'Show Document'
     list_title = 'List Document'
     add_title = 'Add Document'
@@ -417,11 +460,14 @@ class DrasdocumentView(ModelView):
     label_columns = {
         
         'moc':'Main Operating Center',
+        'name': 'Docuement Code',
         'dedoc':'DED Operating Center',
         'title_name': 'Document',
         'current_rev': 'Current Rev',
         'current_stage': 'Stage',
-        'description' : 'Title' 
+        'description' : 'Title',
+        'current_mr': 'Material Requisition',
+        'current_mr_description': 'MR Description' 
 
          
     }
@@ -580,6 +626,10 @@ appbuilder.add_view(RevisionView, 'Revision',
 
 appbuilder.add_view(CommentSheetView, 'Dras List',
                     icon="fa-folder-open-o", category="DRAS DCC")
+
+appbuilder.add_view(CommentSheet2View, 'Document Dras List',
+                    icon="fa-folder-open-o", category="DRAS DCC")
+
 
 appbuilder.add_view(CommentView, 'Comment',
                     icon="fa-folder-open-o", category="DRAS DCC")
