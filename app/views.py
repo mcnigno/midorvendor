@@ -57,6 +57,12 @@ class MidorDras2DashboardView(BaseView):
     def dash_dras(self): 
         return self.render_template('dash_dras2.html')
 
+class MidorDras3DashboardView(BaseView):
+    default_view = 'dash_dras'
+    @expose('/dash_dras', methods=['POST', 'GET'])
+    def dash_dras(self): 
+        return self.render_template('dash_dras3.html')
+
 
 class UnitView(ModelView):
     datamodel = SQLAInterface(Unitmodel)
@@ -460,7 +466,7 @@ class DrasdocumentView(ModelView):
     label_columns = {
         
         'moc':'Main Operating Center',
-        'name': 'Docuement Code',
+        'name': 'Document Code',
         'dedoc':'DED Operating Center',
         'title_name': 'Document',
         'current_rev': 'Current Rev',
@@ -601,6 +607,7 @@ def page_not_found(e):
 #appbuilder.add_view(MidorewdDashboardView, "Early Works Documentation", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDrasDashboardView, "Comments", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras2DashboardView, "DRAS", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
+appbuilder.add_view(MidorDras3DashboardView, "Export", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 
 
 appbuilder.add_view(MainOperatingCenterView, 'Main Operating Centers',icon="fa-folder-open-o", category="DRAS Components")
