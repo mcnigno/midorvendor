@@ -234,7 +234,7 @@ def get_data_from_cs(item):
     '''
     try:
         document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
-        full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[1].split('.')[0]
+        full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[-1].split('.')[0]
         print('Heeeeeeeeeeeere ********************' )
         
         try:
@@ -1102,7 +1102,7 @@ def get_vendor_data_from_cs(item):
         #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         document = csSheet['L8'].value
         full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[-1].split('.')[0] 
-        print('Heeeeeeeeeeeere ********************' )
+        print('Heeeeeeeeeeeere -------------' )
         #print('full revision', full_revision)
         
         try:
@@ -1242,7 +1242,7 @@ def get_vendor_data_from_cs(item):
         else:
             item.stage = rev_stage
     except:
-        abort(400, 'DRAS Error: controllare i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unit. ')    
+        abort(400, 'DRAS Error: controllare il nome del file (revision e stage dopo _ ) e nel DRAS i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unit. ')    
     
     
     #
