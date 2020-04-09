@@ -627,7 +627,7 @@ appbuilder.add_view(RevisionView, 'Revision',
 appbuilder.add_view(CommentSheetView, 'Dras List',
                     icon="fa-folder-open-o", category="DRAS DCC")
 
-appbuilder.add_view(CommentSheet2View, 'Document Dras List',
+appbuilder.add_view(CommentSheet2View, 'Search Dras List',
                     icon="fa-folder-open-o", category="DRAS DCC")
 
 

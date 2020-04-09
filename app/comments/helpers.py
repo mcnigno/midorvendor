@@ -1094,21 +1094,24 @@ def get_vendor_data_from_cs(item):
     # Controlla se questa MR ha lo stesso fornitore.
     mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
     if mr and str(mr.drasvendor) != csSheet['H11'].value: 
-        abort(400,'Questa MR è stata assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
+        abort(400,'MR assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
 
     
     try:
         #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         document = csSheet['L8'].value
-        full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[1].split('.')[0]
+        full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[-1].split('.')[0] 
         print('Heeeeeeeeeeeere ********************' )
+        #print('full revision', full_revision)
         
         try:
             revision = full_revision[:full_revision.index('S')]
             rev_stage = full_revision[full_revision.index('S'):]
+            print('S rev_stage', rev_stage)
         except:
             revision = full_revision[:full_revision.index('Y')]
             rev_stage = full_revision[full_revision.index('Y'):]
+            print('Y rev_stage', rev_stage) 
         try:
             oc_unit = csSheet['H10'].value.split('-')[1]
         except:
@@ -1238,7 +1241,7 @@ def get_vendor_data_from_cs(item):
         else:
             item.stage = rev_stage
     except:
-        abort(400, 'DRAS Error: controllare i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unità. ')    
+        abort(400, 'DRAS Error: controllare i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unit. ')    
     
     
     #
@@ -1289,7 +1292,7 @@ def get_vendor_data_from_cs(item):
     except:
         session.rollback()
         
-        flash('COMMENTS ERROR 003 | Non è stato possibile caricare i commenti per questo DRAS', category='warning')
+        flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
         item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
     session.commit()
