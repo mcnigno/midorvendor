@@ -2,7 +2,7 @@ from flask_appbuilder import Model
 from flask_appbuilder.models.mixins import AuditMixin, FileColumn, ImageColumn
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, Text, Boolean
-from flask import Markup, url_for
+from flask import Markup, url_for, flash
 from flask_appbuilder.filemanager import get_file_original_name
 from app import db
 
@@ -129,6 +129,7 @@ class Drasdocument(Model, AuditMixin):
                                             Drascommentsheet.current == True).first()
         if cs:
             return cs.stage
+        flash('Isa Warning: No Current Stage for this Document, please FIX.')
         return "Stage Not Found"
     
     def current_mr(self):
