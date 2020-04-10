@@ -143,11 +143,17 @@ class Drasdocument(Model, AuditMixin):
     def current_mr_description(self):
         session = db.session
         cs = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == self.id,
-                                            Drascommentsheet.current == True).first()
-        mr = cs.drasmr
-        if cs:
+                            Drascommentsheet.current == True).first()
+        
+        try:                                    
+            mr = cs.drasmr
             return mr.description
-        return "MR description Not Found"
+        except:
+            return "MR description Not Found"
+        
+        
+            
+        
 
 class Drasrevision(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
