@@ -129,7 +129,7 @@ class Drasdocument(Model, AuditMixin):
                                             Drascommentsheet.current == True).first()
         if cs:
             return cs.stage
-        flash('Isa Warning: No Current Stage for this Document, please FIX.')
+        flash('Isa Warning: No Current Stage for this Document, please FIX.', category='warning')
         return "Stage Not Found"
     
     def current_mr(self):
