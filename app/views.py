@@ -177,6 +177,8 @@ class CommentSheet2View(ModelView):
         'drasmr':                   'Material Requisition'
     }
     base_filters = [['current', FilterEqual,1]]
+    edit_exclude_columns = ['created_by', 'changed_by']
+    show_exclude_columns = ['created_by', 'changed_by']
     
 class CommentSheetView(ModelView):
     datamodel = SQLAInterface(Drascommentsheet)
