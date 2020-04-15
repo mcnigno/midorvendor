@@ -83,7 +83,7 @@ class Splitofworks(Model, AuditMixin):
     def __repr__(self):
         return self.id
 
-
+import datetime
 class Drasdocument(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
     name = Column(String(30), unique=True, nullable=False)
@@ -128,6 +128,10 @@ class Drasdocument(Model, AuditMixin):
         cs = session.query(Drascommentsheet).filter(Drascommentsheet.drasdocument_id == self.id,
                                             Drascommentsheet.current == True).first()
         if cs:
+            try:
+                if cs.expectedDate <= datetime.date.today() and cs.stage == 'S':
+                    flash('This Document is DEEMED APRROVED, check the Expected Date.', category='info')
+            except: pass
             return cs.stage
         flash('Isa Warning: No Current Stage for this Document, please FIX.', category='warning')
         return "Stage Not Found"

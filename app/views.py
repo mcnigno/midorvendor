@@ -5,7 +5,7 @@ from app import appbuilder, db
 #from .helpers import upload_ewd, upload_correspondence,create_file_list
 from flask_appbuilder.models.sqla.filters import FilterStartsWith, FilterEqualFunction, FilterEqual, FilterNotContains
 
- 
+from datetime import timedelta
 """
     DRASS Comments View Section
 """
@@ -335,15 +335,20 @@ class CommentSheetView(ModelView):
             return abort(400, 'Pre Add Function Error.')
 
 
-    '''
+    
     def pre_update(self, item):
-        if session['last_document']:
-            session['last_document'] = item.drasdocument_id
+        indoor = ['Y','Y2']
+        outdoor = ['S','Y1','Y3']
+
+        if item.stage in indoor: 
+            item.expectedDate = item.actualDate + timedelta(days=7)
+        if item.stage in outdoor:
+            item.expectedDate = item.actualDate + timedelta(days=14)
         
         
         # Find or Create Document
         # Find or Create Revision
-    
+    '''
     def post_add_redirect(self):
         """Override this function to control the redirect after add endpoint is called."""
         if session['last_document']:
