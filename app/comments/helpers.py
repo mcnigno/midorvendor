@@ -328,8 +328,9 @@ def get_data_from_cs(item):
     
 
     try:
+        none_count = 0
         for row in csSheet.iter_rows(min_row=17,min_col=2):
-            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value))
+            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value), none_count)
             
             if row[0].value is not None and row[1].value is not None:
                 print(row[0].value)
@@ -371,6 +372,11 @@ def get_data_from_cs(item):
 
                 #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
                 session.add(comment)
+            else:
+                # Check on inifinite excel issue
+                none_count += 1
+                if none_count > 5:
+                    raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
 
         session.commit()
@@ -1250,8 +1256,9 @@ def get_vendor_data_from_cs(item):
     #   
 
     try:
+        none_count = 0
         for row in csSheet.iter_rows(min_row=17,min_col=2):
-            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value))
+            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value), none_count)
             
             if row[0].value is not None and row[1].value is not None:
                 print(row[0].value)
@@ -1288,6 +1295,11 @@ def get_vendor_data_from_cs(item):
                     comment.drasdocument_id = doc.id
                 #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
                 session.add(comment)
+            else:
+                # Check on inifinite excel issue
+                none_count += 1
+                if none_count > 5:
+                    raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
 
     except:
