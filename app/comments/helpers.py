@@ -1298,7 +1298,7 @@ def get_vendor_data_from_cs(item):
             else:
                 # Check on inifinite excel issue
                 none_count += 1
-                if none_count > 5:
+                if none_count > 25:
                     raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
 
