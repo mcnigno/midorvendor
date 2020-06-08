@@ -86,7 +86,7 @@ class Splitofworks(Model, AuditMixin):
 import datetime
 class Drasdocument(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
-    name = Column(String(30), unique=True, nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
 
     moc_id = Column(Integer, ForeignKey('mocmodel.id'))
     moc = relationship(Mocmodel)
