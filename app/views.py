@@ -63,6 +63,11 @@ class MidorDras3DashboardView(BaseView):
     def dash_dras(self): 
         return self.render_template('dash_dras3.html')
 
+class MidorDras4DashboardView(BaseView):
+    default_view = 'dash_dras'
+    @expose('/dash_dras', methods=['POST', 'GET'])
+    def dash_dras(self): 
+        return self.render_template('dash_dras4.html')
 
 class UnitView(ModelView):
     datamodel = SQLAInterface(Unitmodel)
@@ -615,6 +620,7 @@ def page_not_found(e):
 appbuilder.add_view(MidorDrasDashboardView, "Comments", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras2DashboardView, "DRAS", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras3DashboardView, "Export", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
+appbuilder.add_view(MidorDras4DashboardView, "Comments Check", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 
 
 appbuilder.add_view(MainOperatingCenterView, 'Main Operating Centers',icon="fa-folder-open-o", category="DRAS Components")
