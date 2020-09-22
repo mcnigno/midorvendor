@@ -198,6 +198,9 @@ class Drasrevision(Model, AuditMixin):
             return Markup('<small class="Current">current</small>') + current_cs.download() 
         except:
             pass 
+    
+    def open_comments(self):
+        comments = session.query
 
 class Drasactionrequired(Model, AuditMixin):
     id = Column(Integer, primary_key=True)
@@ -315,6 +318,12 @@ class Drascommentsheet(Model, AuditMixin):
         if self.current:
             return Markup('<small class="Current">current</small>')
         return Markup('<small class="Superseeded">Superseeded</small>')
+
+    def open_comments(self):
+        session = db.session
+        open_comm = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == self.id,
+                                            Drascomment.commentStatus == 'Open').all()
+        return len(open_comm)
 
 class Drascomment(Model, AuditMixin):
     id = Column(Integer, primary_key=True)

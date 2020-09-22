@@ -202,8 +202,9 @@ class CommentSheetView(ModelView):
                         'contractorTransmittalReference'
                         ]
      
-    list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem', 'is_current', 'download'] 
+    list_columns = ['drasrevision','stage_icon','actualDate','expectedDate','notificationItem', 'is_current','open_comments', 'download'] 
     label_columns = {
+        'open_comments': 'Open',
         'documentReferenceDoc':     'Document',
         'documentReferenceRev':     'Revision', 
         'documentReferenceDesc':    'Description',
