@@ -692,3 +692,5 @@ db.create_all()
 #upload_correspondence()
 #fakeItem3(1)    
 #init_dras()
+from app.comments.helpers import cs_sanification
+cs_sanification() 

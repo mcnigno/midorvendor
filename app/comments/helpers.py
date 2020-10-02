@@ -1312,3 +1312,26 @@ def get_vendor_data_from_cs(item):
     return doc.id     
 
 
+def cs_sanification():
+    print('** *-* * --* -* -* - *- * -* -* -*-*- *- *-*** -**--- **- *- *')
+    session = db.session
+    cs_list = session.query(Drascommentsheet).filter(Drascommentsheet.documentReferenceBy=="Issued by (Contractor Discipline)").all()
+    print('CS da sanare:',len(cs_list))
+    wrong_cs = []
+    for cs in cs_list:
+        try:
+            csFile = openpyxl.load_workbook(UPLOAD_FOLDER+cs.cs_file, data_only=True)
+            csSheet = csFile.active
+            cs.documentReferenceBy = csSheet['L11'].value
+            cs.documentReferenceDesc = csSheet['L10'].value
+            cs.documentReferenceRev = csSheet['L9'].value
+            cs.documentReferenceDoc = csSheet['L8'].value
+            cs.changed_by_fk = '1'
+        except:
+            print('CS FAIL - ID:', cs.id)
+            wrong_cs.append(cs.id)
+            pass
+    
+    session.commit()
+    print('CS NOT FOUND LIST')
+    print(wrong_cs)
