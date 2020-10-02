@@ -93,7 +93,7 @@ def update_data_from_cs(item):
     print(rev.id)
     #print(doc.id)
     #session.flush()
-    print(rev.id)
+    #print(rev.id)
     #print(doc.id)
 
     '''
@@ -104,7 +104,7 @@ def update_data_from_cs(item):
     print(csSheet['C9'].value)
     
     try:
-        print('before maybe here')
+        #print('before maybe here')
         #item.revision_id = rev.id
         #item.document_id = item.document_id
         
@@ -123,10 +123,10 @@ def update_data_from_cs(item):
         item.contractorTransmittalMr = csSheet['H10'].value
         item.contractorTransmittalVendor = csSheet['H11'].value
         
-        item.documentReferenceDoc = csSheet['K8'].value
-        item.documentReferenceRev = csSheet['K9'].value
-        item.documentReferenceDesc = csSheet['K10'].value
-        item.documentReferenceBy = csSheet['K11'].value
+        item.documentReferenceDoc = csSheet['L8'].value
+        item.documentReferenceRev = csSheet['L9'].value
+        item.documentReferenceDesc = csSheet['L10'].value
+        item.documentReferenceBy = csSheet['L11'].value
         
         '''
         BODY - CREATE NEW COMMENTS FOR THIS CS
@@ -466,10 +466,10 @@ def get_fake_data_from_cs(item):
     item.contractorTransmittalMr = csSheet['H10'].value
     item.contractorTransmittalVendor = csSheet['H11'].value
 
-    item.documentReferenceDoc = csSheet['K8'].value
-    item.documentReferenceRev = csSheet['K9'].value
-    item.documentReferenceDesc = csSheet['K10'].value
-    item.documentReferenceBy = csSheet['K11'].value
+    item.documentReferenceDoc = csSheet['L8'].value
+    item.documentReferenceRev = csSheet['L9'].value
+    item.documentReferenceDesc = csSheet['L10'].value
+    item.documentReferenceBy = csSheet['L11'].value
     
     
     '''
@@ -623,10 +623,10 @@ def get_fake_data_from_cs2(item):
     item.contractorTransmittalMr = csSheet['H10'].value
     item.contractorTransmittalVendor = csSheet['H11'].value
 
-    item.documentReferenceDoc = csSheet['K8'].value
-    item.documentReferenceRev = csSheet['K9'].value
-    item.documentReferenceDesc = csSheet['K10'].value
-    item.documentReferenceBy = csSheet['K11'].value
+    item.documentReferenceDoc = csSheet['L8'].value
+    item.documentReferenceRev = csSheet['L9'].value
+    item.documentReferenceDesc = csSheet['L10'].value
+    item.documentReferenceBy = csSheet['L11'].value
     
     
     '''
