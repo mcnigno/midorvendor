@@ -69,6 +69,12 @@ class MidorDras4DashboardView(BaseView):
     def dash_dras(self): 
         return self.render_template('dash_dras4.html')
 
+class MidorDras5DashboardView(BaseView):
+    default_view = 'dash_dras'
+    @expose('/dash_dras', methods=['POST', 'GET'])
+    def dash_dras(self): 
+        return self.render_template('dash_dras5.html')
+
 class UnitView(ModelView):
     datamodel = SQLAInterface(Unitmodel)
     #related_views = [CommentSheetView, RevisionView, CommentView]
@@ -623,6 +629,7 @@ appbuilder.add_view(MidorDrasDashboardView, "Comments", icon="fa-folder-open-o",
 appbuilder.add_view(MidorDras2DashboardView, "DRAS", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras3DashboardView, "Export", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 appbuilder.add_view(MidorDras4DashboardView, "Comments Check", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
+appbuilder.add_view(MidorDras5DashboardView, "DRAS Current All Revision", icon="fa-folder-open-o", category="Dashboard", category_icon='fa-envelope')
 
 
 appbuilder.add_view(MainOperatingCenterView, 'Main Operating Centers',icon="fa-folder-open-o", category="DRAS Components")
@@ -693,4 +700,4 @@ db.create_all()
 #fakeItem3(1)    
 #init_dras()
 from app.comments.helpers import cs_sanification
-cs_sanification() 
+#cs_sanification() 

@@ -1318,6 +1318,7 @@ def cs_sanification():
     cs_list = session.query(Drascommentsheet).filter(Drascommentsheet.documentReferenceBy=="Issued by (Contractor Discipline)").all()
     print('CS da sanare:',len(cs_list))
     wrong_cs = []
+    
     for cs in cs_list:
         try:
             csFile = openpyxl.load_workbook(UPLOAD_FOLDER+cs.cs_file, data_only=True)
