@@ -1220,22 +1220,41 @@ def get_vendor_data_from_cs(item):
         item.drasdocument_id = doc.id
         item.drasvendor = vendor
         item.drasmr = mr
-
-        item.ownerTransmittalReference = csSheet['C9'].value
-        item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
-        item.response_status = csSheet['C12'].value
-
-        item.contractorTransmittalReference = csSheet['H8'].value
-        item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
-        item.contractorTransmittalMr = csSheet['H10'].value
-        item.contractorTransmittalVendor = csSheet['H11'].value
-
-        item.documentReferenceDoc = csSheet['L8'].value
-        item.documentReferenceRev = csSheet['L9'].value
-        item.documentReferenceDesc = csSheet['L10'].value
         
-        # Discipline
-        item.documentReferenceBy = csSheet['L11'].value
+        if csSheet['L14'].value == 'Final Agreement':
+
+            item.ownerTransmittalReference = csSheet['C9'].value
+            item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
+            item.response_status = csSheet['C12'].value
+
+            item.contractorTransmittalReference = csSheet['H8'].value
+            item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
+            item.contractorTransmittalMr = csSheet['H10'].value
+            item.contractorTransmittalVendor = csSheet['H11'].value
+
+            item.documentReferenceDoc = csSheet['L8'].value
+            item.documentReferenceRev = csSheet['L9'].value
+            item.documentReferenceDesc = csSheet['L10'].value
+            
+            # Discipline
+            item.documentReferenceBy = csSheet['L11'].value
+            
+        else:
+            item.ownerTransmittalReference = csSheet['C9'].value
+            item.ownerTransmittalDate = date_parse(csSheet['D9'].value)
+            item.response_status = csSheet['C12'].value
+
+            item.contractorTransmittalReference = csSheet['H8'].value
+            item.contractorTransmittalDate = date_parse(csSheet['H9'].value)
+            item.contractorTransmittalMr = csSheet['H10'].value
+            item.contractorTransmittalVendor = csSheet['H11'].value
+
+            item.documentReferenceDoc = csSheet['K8'].value
+            item.documentReferenceRev = csSheet['K9'].value
+            item.documentReferenceDesc = csSheet['K10'].value
+            
+            # Discipline
+            item.documentReferenceBy = csSheet['K11'].value
 
         #
         # SET EXPECTED DATE BASED ON STAGE
@@ -1282,41 +1301,89 @@ def get_vendor_data_from_cs(item):
             if row[0].value is not None and row[1].value is not None:
                 print(row[0].value)
                 
-                comment = Drascomment(
-                    drasrevision_id = rev.id,
-                    drascommentsheet = item,
+                if csSheet['L14'].value == 'Final Agreement':
+                    comment = Drascomment(
+                        drasdocument_id = doc.id,
+                        drasrevision_id = rev.id,
+                        drascommentsheet = item,
+                        
+                        tagdiscipline= session.query(Tagdiscipline).filter(
+                                                    Tagdiscipline.start <= int(row[1].value), 
+                                                    Tagdiscipline.finish >= int(row[1].value)).first(), 
                     
-                    tagdiscipline= session.query(Tagdiscipline).filter(
-                                                Tagdiscipline.start <= int(row[1].value), 
-                                                Tagdiscipline.finish >= int(row[1].value)).first(), 
-                 
 
-                    pos = row[0].value,
-                    tag = row[1].value,
-                    info = row[2].value,
-                    ownerCommentBy = row[3].value,
-                    ownerCommentDate = date_parse(csSheet['F15'].value),
-                    ownerCommentComment = text_decode(row[4].value) ,
+                        pos = row[0].value,
+                        tag = row[1].value,
+                        info = row[2].value,
+                        ownerCommentBy = row[3].value,
+                        ownerCommentDate = date_parse(csSheet['F15'].value),
+                        ownerCommentComment = text_decode(row[4].value) ,
 
-                    contractorReplyDate = date_parse(csSheet['H15'].value),
-                    contractorReplyStatus = row[5].value,
-                    contractorReplyComment = text_decode(row[6].value),
-                    
-                    ownerCounterReplyDate = date_parse(csSheet['K15'].value),
-                    ownerCounterReplyComment = text_decode(row[8].value),
+                        contractorReplyDate = date_parse(csSheet['H15'].value),
+                        contractorReplyStatus = row[5].value,
+                        contractorReplyComment = text_decode(row[6].value),
+                        
+                        ownerCounterReplyDate = date_parse(csSheet['K15'].value),
+                        ownerCounterReplyComment = text_decode(row[8].value),
 
-                    finalAgreementDate = date_parse(csSheet['M15'].value),
-                    finalAgreemntCommentDate = date_parse(row[10].value),
-                    finalAgreementComment = text_decode(row[11].value),
+                        finalAgreementDate = date_parse(csSheet['M15'].value),
+                        finalAgreemntCommentDate = date_parse(row[10].value),
+                        finalAgreementComment = text_decode(row[11].value),
 
-                    commentStatus = str(row[12].value),
-                )
+                        commentStatus = str(row[12].value),
+                    )
 
-                if item.current:
-                    comment.drasdocument_id = doc.id
-                #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
+                    #if item.current:
+                        #comment.drasdocument_id = doc.id
+                    #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
+                    #session.add(comment)
+                    #session.commit()
+                else:
+                    comment = Drascomment(
+                        drasdocument_id = doc.id,
+                        drasrevision_id = rev.id,
+                        drascommentsheet = item,
+                        
+                        tagdiscipline= session.query(Tagdiscipline).filter(
+                                                    Tagdiscipline.start <= int(row[1].value), 
+                                                    Tagdiscipline.finish >= int(row[1].value)).first(), 
+
+                        pos = row[0].value,
+                        tag = row[1].value,
+                        info = row[2].value,
+                        
+                        ownerCommentBy = row[3].value,
+                        ownerCommentDate = date_parse(csSheet['F15'].value),
+                        ownerCommentComment = text_decode(row[4].value),
+
+                        contractorReplyDate = date_parse(csSheet['H15'].value),
+                        contractorReplyStatus = row[5].value,
+                        contractorReplyComment = text_decode(row[6].value),
+                        
+                        ownerCounterReplyDate = date_parse(csSheet['J15'].value),
+                        ownerCounterReplyComment = text_decode(row[7].value),
+
+                        finalAgreementDate = date_parse(csSheet['L15'].value),
+                        finalAgreemntCommentDate = date_parse(row[9].value),
+                        finalAgreementComment = text_decode(row[10].value),
+
+                        commentStatus = str(row[11].value),
+                        
+                    )
+                ## SET MAX LENGHT
+                if comment.commentStatus:
+                    comment.commentStatus = comment.commentStatus[:20]
+                if comment.ownerCommentBy:
+                    comment.ownerCommentBy = comment.ownerCommentBy[:50]
+                
+                if comment.pos:
+                    comment.pos = str(comment.pos)[:5]
+
+                if comment.contractorReplyStatus:
+                    comment.contractorReplyStatus = comment.contractorReplyStatus[:100]
+                
                 session.add(comment)
-                session.commit()
+
             else:
                 # Check on inifinite excel issue
                 none_count += 1
