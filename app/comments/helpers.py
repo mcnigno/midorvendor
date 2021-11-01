@@ -1252,7 +1252,7 @@ def get_vendor_data_from_cs(item):
         #
         # SET DRAS AS CURRENT
         #
-
+        '''
         if item.current:
             session.query(Drascomment).filter(Drascomment.drasdocument_id == doc.id).delete()
             
@@ -1263,7 +1263,8 @@ def get_vendor_data_from_cs(item):
                 cs.current = False
         else:
             item.stage = rev_stage
-        
+        '''
+        item.stage = rev_stage
         session.commit()
     except:
         abort(400, 'DRAS Error: controllare il nome del file (revision e stage dopo _ ) e nel DRAS i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unit. ')    
