@@ -702,7 +702,14 @@ def get_fake_data_from_cs2(item):
         abort(400,'Error - Data in Table badly formatted :( - check your file !')
      
 
-
+def text_decode(comment):
+    ''' Decode ASCII in comments'''
+    if comment:
+        string_encode = str(comment).encode("ascii", "ignore")
+        string_decode = string_encode.decode()
+        
+        return string_decode
+    return comment
 
 
 '''
@@ -1107,8 +1114,15 @@ def get_vendor_data_from_cs(item):
     try:
         #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         document = csSheet['L8'].value
+        document_filename = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[-1].split('.')[0] 
-        print('Heeeeeeeeeeeere -------------' )
+        print('Heeeeeeeeeeeere -------------',document_filename,document )
+        
+        if document != document_filename:
+            print('++++ + + + + +++ WRONG DRAS DOCUMENT')
+            flash('Il documento estrapolato dal Filename e il documento riportato nel DRAS (cella H11) sono diversi. FILENAME: '+ document_filename + ' -> DRAS: ' + document, 'info')
+            abort(400,'Documento nel DRAS errato')
+
         #print('full revision', full_revision)
         
         try:
@@ -1132,7 +1146,8 @@ def get_vendor_data_from_cs(item):
     
 
         doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
-        
+        if doc:
+            print('Doc is there', doc)
         if doc is None:
             #fake Discipline
             
@@ -1150,7 +1165,7 @@ def get_vendor_data_from_cs(item):
         
         rev = session.query(Drasrevision).filter(Drasrevision.name == revision, Drasrevision.drasdocument_id == doc.id).first() 
         print('searching for revision, document:', revision, document)
-        print('found', rev)
+        print('found', rev) 
         if rev is None:
             print(rev)
             print('    ----------     Rev is None: ', revision, rev_stage, document)
@@ -1171,8 +1186,9 @@ def get_vendor_data_from_cs(item):
             abort(409)
 
 
-        
+        print('before flush')
         session.flush()
+        print('after flush') 
 
         #
         #  SET VENDOR AND MR RELATION
@@ -1199,7 +1215,7 @@ def get_vendor_data_from_cs(item):
         #
         #    HEADER - UPDATE THE COMMENT SHEET
         #
-
+        print('++++ debug revi id +++++', rev.id)
         item.drasrevision_id = rev.id
         item.drasdocument_id = doc.id
         item.drasvendor = vendor
@@ -1247,6 +1263,8 @@ def get_vendor_data_from_cs(item):
                 cs.current = False
         else:
             item.stage = rev_stage
+        
+        session.commit()
     except:
         abort(400, 'DRAS Error: controllare il nome del file (revision e stage dopo _ ) e nel DRAS i campi Vendor, Material R e Document. Se presenti, verificare lo Split of Works per questa Unit. ')    
     
@@ -1262,31 +1280,33 @@ def get_vendor_data_from_cs(item):
             
             if row[0].value is not None and row[1].value is not None:
                 print(row[0].value)
-                #  
+                
                 comment = Drascomment(
                     drasrevision_id = rev.id,
                     drascommentsheet = item,
+                    
                     tagdiscipline= session.query(Tagdiscipline).filter(
                                                 Tagdiscipline.start <= int(row[1].value), 
                                                 Tagdiscipline.finish >= int(row[1].value)).first(), 
+                 
 
                     pos = row[0].value,
                     tag = row[1].value,
                     info = row[2].value,
                     ownerCommentBy = row[3].value,
                     ownerCommentDate = date_parse(csSheet['F15'].value),
-                    ownerCommentComment = row[4].value,
+                    ownerCommentComment = text_decode(row[4].value) ,
 
                     contractorReplyDate = date_parse(csSheet['H15'].value),
                     contractorReplyStatus = row[5].value,
-                    contractorReplyComment = row[6].value,
+                    contractorReplyComment = text_decode(row[6].value),
                     
                     ownerCounterReplyDate = date_parse(csSheet['K15'].value),
-                    ownerCounterReplyComment = row[8].value,
+                    ownerCounterReplyComment = text_decode(row[8].value),
 
                     finalAgreementDate = date_parse(csSheet['M15'].value),
                     finalAgreemntCommentDate = date_parse(row[10].value),
-                    finalAgreementComment = row[11].value,
+                    finalAgreementComment = text_decode(row[11].value),
 
                     commentStatus = str(row[12].value),
                 )
@@ -1295,21 +1315,23 @@ def get_vendor_data_from_cs(item):
                     comment.drasdocument_id = doc.id
                 #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
                 session.add(comment)
+                session.commit()
             else:
                 # Check on inifinite excel issue
                 none_count += 1
-                if none_count > 25:
-                    raise Exception('Excel BAD FORMAT: Infinite Comments')
+                if none_count > 35:
+                    break
+                    #raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
-
+        session.commit()
+        return doc.id 
     except:
         session.rollback()
         
-        flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
-        item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
+        return flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
+        #item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
-    session.commit()
-    return doc.id     
+        
 
 
 def cs_sanification():
