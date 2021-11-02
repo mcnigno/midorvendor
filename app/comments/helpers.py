@@ -1558,9 +1558,9 @@ def update_all_vendor_data_from_cs(item):
     csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
     csSheet = csFile.active
     
-    session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
+    deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
     
-    print('Update Comments -+-+-+')
+    print('Delete Comments -+-+-+',item,deleted) 
 
     try:
         none_count = 0
@@ -1672,21 +1672,39 @@ def update_all_vendor_data_from_cs(item):
         #return flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
         #item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
-
+#rtese uwsgi[2456]: DRAS DWG-19111.01-01 4X YF - DRAS QPE069-9002 BX YF
 def update_all_YF():
     session = db.session
-    cs_list = session.query(Drascommentsheet).filter(Drascommentsheet.stage == 'YF').all()
+    cs_list = session.query(Drascommentsheet).filter(
+                            Drascommentsheet.stage == 'YF',
+                            Drascommentsheet.note == '').all() 
 
     cs_count = 0
+    cs_len = len(cs_list)
+    errors_list = []
+    print('leng of cs_list',cs_len)
     for cs in cs_list[:300]:
+        print(cs)
         cs_count += 1 
         comments = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == cs.id).all()
-        if not comments:
+        
+        if comments:
+            cs.note = 'Comments Found'   
+            print('Comments Found',cs_count,'/', cs_len,'CS: ',cs)
+            cs.changed_by_fk = '1'
+            session.commit() 
+            print(cs, 'has comments', len(comments))
+        else:
             try:
                 doc = update_all_vendor_data_from_cs(cs)
-                print(cs_count,'CS: ',cs, 'DOC: ',doc, ' OK ')
+                cs.note = 'Comments Updated'   
+                print('Comments Updated',cs_count,'/', cs_len,'CS: ',cs,'DOC: ',doc)
+                cs.changed_by_fk = '1'
+                session.commit() 
             except Exception as e:
                 print(cs, ' |+-+- error -+-+| ', str(e))
-                cs.note = str(e)
+                cs.note = str(e) 
                 cs.changed_by_fk = '1'
+                errors_list.append((cs,str(e)))
                 session.commit()
+    print('ERRORS',errors_list)
