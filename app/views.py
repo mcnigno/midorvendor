@@ -25,7 +25,7 @@ from app.comments.helpers import check_labels, get_data_from_cs
 from flask import session, redirect, url_for, abort
 from app.comments.customWidgets import commentListWidget, RevisionListCard
 from flask_appbuilder.widgets import ListBlock
-from app.comments.helpers import update_data_from_cs
+from app.comments.helpers import update_data_from_cs, update_vendor_data_from_cs
 #from app.comments.ListeXLSX.helpers import add_moc, add_unit
 #import app.comments.ListeXLSX.helpers
 from flask_babel import lazy_gettext
@@ -394,12 +394,12 @@ class CommentSheetView(ModelView):
             self.datamodel.delete(items)
         return redirect(self.get_redirect())
     
-    @action("setcurrent", "Set as Current", "Set all as Curent Really?", "fa-rocket", multiple=False)
+    @action("updatecomments", "Update Comments", "Upload all comments?", "fa-rocket", multiple=False)
     def setcurrent(self, items):
         item = items
          
-        update_data_from_cs(item)
-        print(session)
+        update_vendor_data_from_cs(item)
+        #print(session)
  
         #return redirect(self.get_redirect())
         return redirect(url_for('DrasdocumentView.show', pk=item.drasdocument_id))

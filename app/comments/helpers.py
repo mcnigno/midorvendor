@@ -1426,3 +1426,122 @@ def cs_sanification():
     session.commit()
     print('CS NOT FOUND LIST')
     print(wrong_cs)
+
+
+def update_vendor_data_from_cs(item):
+    #item ='4def885a-604b-11e9-bffd-ac87a32187da_sep_DRAS_2544-17-DW-0510-04_CY.xlsx'
+    session = db.session
+    
+    
+    csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
+    csSheet = csFile.active
+    
+    session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
+    
+    print('Update Comments -+-+-+')
+
+    try:
+        none_count = 0
+        for row in csSheet.iter_rows(min_row=17,min_col=2):
+            print('CommentStatus', row[0].value,row[9].value,row[10].value,row[11].value, type(row[11].value), none_count)
+            
+            if row[0].value is not None and row[1].value is not None:
+                print(row[0].value)
+                
+                if csSheet['L14'].value == 'Final Agreement':
+                    comment = Drascomment(
+                        drasdocument = item.drasdocument,
+                        drasrevision = item.drasrevision,
+                        drascommentsheet = item,
+                        
+                        tagdiscipline= session.query(Tagdiscipline).filter(
+                                                    Tagdiscipline.start <= int(row[1].value), 
+                                                    Tagdiscipline.finish >= int(row[1].value)).first(), 
+                    
+
+                        pos = row[0].value,
+                        tag = row[1].value,
+                        info = row[2].value,
+                        ownerCommentBy = row[3].value,
+                        ownerCommentDate = date_parse(csSheet['F15'].value),
+                        ownerCommentComment = text_decode(row[4].value) ,
+
+                        contractorReplyDate = date_parse(csSheet['H15'].value),
+                        contractorReplyStatus = row[5].value,
+                        contractorReplyComment = text_decode(row[6].value),
+                        
+                        ownerCounterReplyDate = date_parse(csSheet['K15'].value),
+                        ownerCounterReplyComment = text_decode(row[8].value),
+
+                        finalAgreementDate = date_parse(csSheet['M15'].value),
+                        finalAgreemntCommentDate = date_parse(row[10].value),
+                        finalAgreementComment = text_decode(row[11].value),
+
+                        commentStatus = str(row[12].value),
+                    )
+
+                    #if item.current:
+                        #comment.drasdocument_id = doc.id
+                    #print('Contractor Status:',len(comment.contractorReplyStatus),comment.contractorReplyStatus)
+                    #session.add(comment)
+                    #session.commit()
+                else:
+                    comment = Drascomment(
+                        drasdocument = item.drasdocument,
+                        drasrevision = item.drasrevision,
+                        drascommentsheet = item,
+                        
+                        tagdiscipline= session.query(Tagdiscipline).filter(
+                                                    Tagdiscipline.start <= int(row[1].value), 
+                                                    Tagdiscipline.finish >= int(row[1].value)).first(), 
+
+                        pos = row[0].value,
+                        tag = row[1].value,
+                        info = row[2].value,
+                        
+                        ownerCommentBy = row[3].value,
+                        ownerCommentDate = date_parse(csSheet['F15'].value),
+                        ownerCommentComment = text_decode(row[4].value),
+
+                        contractorReplyDate = date_parse(csSheet['H15'].value),
+                        contractorReplyStatus = row[5].value,
+                        contractorReplyComment = text_decode(row[6].value),
+                        
+                        ownerCounterReplyDate = date_parse(csSheet['J15'].value),
+                        ownerCounterReplyComment = text_decode(row[7].value),
+
+                        finalAgreementDate = date_parse(csSheet['L15'].value),
+                        finalAgreemntCommentDate = date_parse(row[9].value),
+                        finalAgreementComment = text_decode(row[10].value),
+
+                        commentStatus = str(row[11].value),
+                        
+                    )
+                ## SET MAX LENGHT
+                if comment.commentStatus:
+                    comment.commentStatus = comment.commentStatus[:20]
+                if comment.ownerCommentBy:
+                    comment.ownerCommentBy = comment.ownerCommentBy[:50]
+                
+                if comment.pos:
+                    comment.pos = str(comment.pos)[:5]
+
+                if comment.contractorReplyStatus:
+                    comment.contractorReplyStatus = comment.contractorReplyStatus[:100]
+                
+                session.add(comment)
+
+            else:
+                # Check on inifinite excel issue
+                none_count += 1
+                if none_count > 35:
+                    break
+                    #raise Exception('Excel BAD FORMAT: Infinite Comments')
+        #session.query(Comment).filter(Comment.document_id == doc.id).delete()
+        session.commit()
+        return item.drasdocument_id 
+    except:
+        session.rollback()
+        
+        return flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
+        #item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
