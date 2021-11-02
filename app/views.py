@@ -25,7 +25,7 @@ from app.comments.helpers import check_labels, get_data_from_cs
 from flask import session, redirect, url_for, abort
 from app.comments.customWidgets import commentListWidget, RevisionListCard
 from flask_appbuilder.widgets import ListBlock
-from app.comments.helpers import update_data_from_cs, update_vendor_data_from_cs
+from app.comments.helpers import update_data_from_cs, update_vendor_data_from_cs, update_all_YF
 #from app.comments.ListeXLSX.helpers import add_moc, add_unit
 #import app.comments.ListeXLSX.helpers
 from flask_babel import lazy_gettext
@@ -562,7 +562,7 @@ class DrasUploadView(ModelView):
         
         
         # Check File Requirements
-        check_labels(item)
+        #check_labels(item)
         doc = get_vendor_data_from_cs(item) 
         
         session['last_document'] = doc
@@ -697,6 +697,7 @@ appbuilder.add_separator(category="DRAS Components")
 #add_moc()
 
 db.create_all() 
+update_all_YF()
 #upload_ewd()
 #create_file_list()
 #upload_correspondence()
