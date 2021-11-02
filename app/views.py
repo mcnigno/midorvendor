@@ -190,9 +190,81 @@ class CommentSheet2View(ModelView):
     base_filters = [['current', FilterEqual,1]]
     edit_exclude_columns = ['created_by', 'changed_by']
     show_exclude_columns = ['created_by', 'changed_by']
-    
+
+class CommentView(ModelView):
+    datamodel = SQLAInterface(Drascomment)
+    list_columns = ['tag','ownerCommentComment','contractorReplyStatus','contractorReplyComment','ownerCounterReplyComment','finalComment', 'commentStatus', 'pos']
+    show_title = 'Show Comment'
+    list_title = 'List Comments'
+    add_title = 'Add Comment'
+    edit_title = 'Edit Comment' 
+    search_columns = ['commentStatus']
+    list_widget = commentListWidget 
+    label_columns = {
+        'ownerCommentBy': 'by',
+        'ownerCommentDate': 'Date',
+        'ownerCommentComment': 'Owner:',
+
+        'contractorReplyDate': 'Date',
+        'contractorReplyStatus': 'Status',
+        'contractorReplyComment': 'Contractor:',
+
+        'ownerCounterReplyDate': 'Date',
+        'ownerCounterReplyComment' : 'Owner:',
+
+        'finalAgreementDate': 'Agreement Date', 
+        'finalAgreemntCommentDate':'Comment Date', 
+        'finalAgreementComment': 'Agreement:',
+        'commentStatus': 'Status'
+        
+    }
+
+    show_fieldsets = [
+        (lazy_gettext('DRAS Comment'),
+
+         {'fields': ['pos', 'tag', 'info']}),
+        
+        (lazy_gettext('Owner Comment'),
+
+         {'fields': ['ownerCommentBy', 
+                    'ownerCommentDate', 
+                    'ownerCommentComment'], 'expanded': True}),
+        
+        (lazy_gettext('Contractor Reply'),
+
+         {'fields': ['contractorReplyDate', 
+                    'contractorReplyStatus', 
+                    'contractorReplyComment'], 
+                    'expanded': False}),
+        
+        (lazy_gettext('Owner Counter Reply'), 
+
+         {'fields': ['ownerCounterReplyDate', 
+                    'ownerCounterReplyComment',], 
+                    'expanded': False}),
+        
+        (lazy_gettext('Final Agreement'),
+
+         {'fields': ['finalAgreementDate', 
+                    'finalAgreemntCommentDate', 
+                    'finalAgreementComment',
+                    'commentStatus'], 'expanded': False}),
+        
+        
+    ]
+   
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket")
+    def muldelete(self, items):
+        if isinstance(items, list):
+            self.datamodel.delete_all(items)
+            self.update_redirect()
+        else:
+            self.datamodel.delete(items)
+        return redirect(self.get_redirect())
+
 class CommentSheetView(ModelView):
     datamodel = SQLAInterface(Drascommentsheet)
+    related_views = [CommentView]
     add_title = 'View DRAS'
     edit_title = 'Edit DRAS'
     edit_exclude_columns = ['cs_file']
@@ -370,76 +442,7 @@ class CommentSheetView(ModelView):
 
             return redirect(url_for('DrasdocumentView.show', pk=doc))
     '''
-class CommentView(ModelView):
-    datamodel = SQLAInterface(Drascomment)
-    list_columns = ['tag','ownerCommentComment','contractorReplyStatus','contractorReplyComment','ownerCounterReplyComment','finalComment', 'commentStatus', 'pos']
-    show_title = 'Show Comment'
-    list_title = 'List Comments'
-    add_title = 'Add Comment'
-    edit_title = 'Edit Comment' 
-    search_columns = ['commentStatus']
-    list_widget = commentListWidget 
-    label_columns = {
-        'ownerCommentBy': 'by',
-        'ownerCommentDate': 'Date',
-        'ownerCommentComment': 'Owner:',
 
-        'contractorReplyDate': 'Date',
-        'contractorReplyStatus': 'Status',
-        'contractorReplyComment': 'Contractor:',
-
-        'ownerCounterReplyDate': 'Date',
-        'ownerCounterReplyComment' : 'Owner:',
-
-        'finalAgreementDate': 'Agreement Date', 
-        'finalAgreemntCommentDate':'Comment Date', 
-        'finalAgreementComment': 'Agreement:',
-        'commentStatus': 'Status'
-        
-    }
-
-    show_fieldsets = [
-        (lazy_gettext('DRAS Comment'),
-
-         {'fields': ['pos', 'tag', 'info']}),
-        
-        (lazy_gettext('Owner Comment'),
-
-         {'fields': ['ownerCommentBy', 
-                    'ownerCommentDate', 
-                    'ownerCommentComment'], 'expanded': True}),
-        
-        (lazy_gettext('Contractor Reply'),
-
-         {'fields': ['contractorReplyDate', 
-                    'contractorReplyStatus', 
-                    'contractorReplyComment'], 
-                    'expanded': False}),
-        
-        (lazy_gettext('Owner Counter Reply'), 
-
-         {'fields': ['ownerCounterReplyDate', 
-                    'ownerCounterReplyComment',], 
-                    'expanded': False}),
-        
-        (lazy_gettext('Final Agreement'),
-
-         {'fields': ['finalAgreementDate', 
-                    'finalAgreemntCommentDate', 
-                    'finalAgreementComment',
-                    'commentStatus'], 'expanded': False}),
-        
-        
-    ]
-   
-    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket")
-    def muldelete(self, items):
-        if isinstance(items, list):
-            self.datamodel.delete_all(items)
-            self.update_redirect()
-        else:
-            self.datamodel.delete(items)
-        return redirect(self.get_redirect())
 
 class RevisionView(ModelView):
     datamodel = SQLAInterface(Drasrevision)
