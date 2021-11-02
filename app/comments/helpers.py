@@ -1558,12 +1558,13 @@ def update_all_vendor_data_from_cs(item):
     csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
     csSheet = csFile.active
     
-    deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
+    #deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
     
-    print('Delete Comments -+-+-+',item,deleted) 
+    #print('Delete Comments -+-+-+',item,deleted) 
 
     try:
         none_count = 0
+        comments = 0
         print('DRAS', item.drasdocument, item.drasrevision, item.stage)
         for row in csSheet.iter_rows(min_row=17,min_col=2):
             
@@ -1655,6 +1656,7 @@ def update_all_vendor_data_from_cs(item):
                 comment.created_by_fk = '1'
                 comment.changed_by_fk = '1'
                 
+                comments += 1
                 session.add(comment)
 
             else:
@@ -1665,7 +1667,7 @@ def update_all_vendor_data_from_cs(item):
                     #raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
         session.commit()
-        return item.drasdocument_id 
+        return item.drasdocument_id, comments 
     except Exception as e:
         session.rollback()
         print(str(e))
@@ -1683,22 +1685,22 @@ def update_all_YF():
     cs_len = len(cs_list)
     errors_list = []
     print('leng of cs_list',cs_len)
-    for cs in cs_list[:300]:
-        print(cs)
+    for cs in cs_list[:100]:
+        #print(cs)
         cs_count += 1 
         comments = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == cs.id).all()
         
         if comments:
             cs.note = 'Comments Found'   
-            print('Comments Found',cs_count,'/', cs_len,'CS: ',cs)
+            print(cs_count,'/', cs_len,'CS: ',cs,'Comments Found:',len(comments))
             cs.changed_by_fk = '1'
             session.commit() 
-            print(cs, 'has comments', len(comments))
+            #print(cs, 'has comments', len(comments))
         else:
             try:
-                doc = update_all_vendor_data_from_cs(cs)
+                doc,comments = update_all_vendor_data_from_cs(cs)
                 cs.note = 'Comments Updated'   
-                print('Comments Updated',cs_count,'/', cs_len,'CS: ',cs,'DOC: ',doc)
+                print(cs_count,'/', cs_len,'CS: ',cs,'Comments Updated:',comments)
                 cs.changed_by_fk = '1'
                 session.commit() 
             except Exception as e:
