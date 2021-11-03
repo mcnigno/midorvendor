@@ -697,7 +697,7 @@ appbuilder.add_separator(category="DRAS Components")
 #add_moc()
 
 db.create_all() 
-update_all_YF()
+#update_all_YF()
 #upload_ewd()
 #create_file_list()
 #upload_correspondence()
