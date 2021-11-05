@@ -1114,7 +1114,12 @@ def get_vendor_data_from_cs(item):
     try:
         #document = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         document = csSheet['L8'].value
-        document_filename = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
+        document_fullname = item.cs_file.split('_sep_DRAS_')[1]
+        try:
+            document_filename = document_fullname[:document_fullname.rindex('_')]  
+        except Exception as e:
+            print(str(e))
+        #document_filename = item.cs_file.split('_sep_DRAS_')[1].split('_')[0]
         full_revision = item.cs_file.split('_sep_DRAS_')[1].split('_')[-1].split('.')[0] 
         print('Heeeeeeeeeeeere -------------',document_filename,document )
         
@@ -1685,14 +1690,14 @@ def update_all_YF():
     cs_len = len(cs_list)
     errors_list = []
     print('leng of cs_list',cs_len)
-    for cs in cs_list[:100]:
+    for cs in cs_list[:1000]:
         #print(cs)
         cs_count += 1 
         comments = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == cs.id).all()
         
         if comments:
             cs.note = 'Comments Found'   
-            print(cs_count,'/', cs_len,'CS: ',cs,'Comments Found:',len(comments))
+            #print(cs_count,'/', cs_len,'CS: ',cs,'Comments Found:',len(comments))
             cs.changed_by_fk = '1'
             session.commit() 
             #print(cs, 'has comments', len(comments))
@@ -1702,7 +1707,7 @@ def update_all_YF():
                 cs.note = 'Comments Updated'   
                 print(cs_count,'/', cs_len,'CS: ',cs,'Comments Updated:',comments)
                 cs.changed_by_fk = '1'
-                session.commit() 
+                session.commit()  
             except Exception as e:
                 print(cs, ' |+-+- error -+-+| ', str(e))
                 cs.note = str(e) 
@@ -1710,3 +1715,5 @@ def update_all_YF():
                 errors_list.append((cs,str(e)))
                 session.commit()
     print('ERRORS',errors_list)
+
+ 
