@@ -1396,6 +1396,7 @@ def get_vendor_data_from_cs(item):
                     break
                     #raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
+        item.note = 'Piero003'
         session.commit()
         return doc.id 
     except:
@@ -1544,6 +1545,7 @@ def update_vendor_data_from_cs(item):
                     break
                     #raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
+        item.note = 'Piero003'
         session.commit()
         return item.drasdocument_id 
     except Exception as e:
@@ -1563,19 +1565,19 @@ def update_all_vendor_data_from_cs(item):
     csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
     csSheet = csFile.active
     
-    #deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
-    
+    deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
+     
     #print('Delete Comments -+-+-+',item,deleted) 
 
     try:
         none_count = 0
         comments = 0
-        print('DRAS', item.drasdocument, item.drasrevision, item.stage)
+        
         for row in csSheet.iter_rows(min_row=17,min_col=2):
             
             
             if row[0].value is not None and row[1].value is not None:
-                print('pos',row[0].value,'tag',row[1].value,'info',row[2].value)
+                #print('pos',row[0].value,'tag',row[1].value,'info',row[2].value)
                 
                 if csSheet['L14'].value == 'Final Agreement':
                     comment = Drascomment(
@@ -1672,10 +1674,11 @@ def update_all_vendor_data_from_cs(item):
                     #raise Exception('Excel BAD FORMAT: Infinite Comments')
         #session.query(Comment).filter(Comment.document_id == doc.id).delete()
         session.commit()
-        return item.drasdocument_id, comments 
+        
+        return item, comments 
     except Exception as e:
         session.rollback()
-        print(str(e))
+        
         #return flash('COMMENTS ERROR 003 | Impossibile caricare i commenti per questo DRAS', category='warning')
         #item.note = 'COMMENTS ERROR 003: Badly Formatted. Please find the attached original DRAS in order to review you comments.'
 
@@ -1717,3 +1720,112 @@ def update_all_YF():
     print('ERRORS',errors_list)
 
  
+def piero_items_u():
+    #item ='4def885a-604b-11e9-bffd-ac87a32187da_sep_DRAS_2544-17-DW-0510-04_CY.xlsx'
+    session = db.session
+    csFile = openpyxl.load_workbook('app/comments/Piero_vendor.xlsx', data_only=True)
+    csSheet = csFile.active
+
+    start = 0
+
+    for row in csSheet.iter_rows(min_row=2, min_col=1):
+        start += 1
+        try:
+            document = row[0].value[:str(row[0].value).rindex('_')]
+            rev = row[0].value[str(row[0].value).rindex('_')+1:]
+            
+            dras_doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+            
+            if dras_doc: 
+                dras_rev = session.query(Drasrevision).filter(
+                    Drasrevision.name == rev,
+                    Drasrevision.drasdocument_id == dras_doc.id).first()
+
+                if dras_rev:
+                    dras = session.query(Drascommentsheet).filter(
+                        Drascommentsheet.stage == 'YF',
+                        Drascommentsheet.drasrevision_id == dras_rev.id).first() 
+                    
+                    if dras:
+                        dras, comments = update_all_vendor_data_from_cs(dras)
+                        dras.note = 'Piero003'
+                        dras.changed_by_fk = '1'
+                        session.commit()
+                        print(start,dras.drasdocument, dras.drasrevision, dras.stage, 'C: ',comments)
+
+                        csSheet.cell(row=row[0].row,column=3).value = 'OK'
+                        csSheet.cell(row=row[0].row,column=4).value = comments 
+                    else:
+                        print(start,' ',document,'NOT FOUND')
+                        csSheet.cell(row=row[0].row,column=3).value = 'NO DRAS'
+                else:
+                        csSheet.cell(row=row[0].row,column=3).value = 'NO REV'
+                        print(start,' ',document,'NOT FOUND')
+            else:
+                        csSheet.cell(row=row[0].row,column=3).value = 'NO DOC' 
+                        print(start,' ',document,'NOT FOUND') 
+
+        except Exception as e:
+            csSheet.cell(row=row[0].row,column=3).value = 'Error'
+            csSheet.cell(row=row[0].row,column=5).value = str(e) 
+            print(e) 
+    
+    csFile.save('Piero_vendor_check.xlsx')
+    csFile.close() 
+
+
+def piero_items():
+    #item ='4def885a-604b-11e9-bffd-ac87a32187da_sep_DRAS_2544-17-DW-0510-04_CY.xlsx'
+    session = db.session
+    csFile = openpyxl.load_workbook('app/comments/Piero_vendor.xlsx', data_only=True)
+    csSheet = csFile.active
+
+    start = 0 
+
+    for row in csSheet.iter_rows(min_row=2, min_col=1):
+        if row[2].value is None:
+            start += 1
+            try:
+                document = row[0].value[:str(row[0].value).rindex('_')]
+                rev = row[0].value[str(row[0].value).rindex('_')+1:]
+                
+                dras_doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+                
+                if dras_doc: 
+                    dras_rev = session.query(Drasrevision).filter(
+                        Drasrevision.name == rev,
+                        Drasrevision.drasdocument_id == dras_doc.id).first()
+
+                    if dras_rev:
+                        dras = session.query(Drascommentsheet).filter(
+                            Drascommentsheet.stage == 'YF',
+                            Drascommentsheet.drasrevision_id == dras_rev.id).first() 
+                        
+                        if dras:
+                            dras, comments = update_all_vendor_data_from_cs(dras)
+                            dras.note = 'Piero003'
+                            dras.changed_by_fk = '1'
+                            session.commit()
+                            
+                            print(start,dras.drasdocument, dras.drasrevision, dras.stage, 'C: ',comments)
+
+                            csSheet.cell(row=row[0].row,column=3).value = 'OK'
+                            csSheet.cell(row=row[0].row,column=4).value = comments 
+                        else:
+                            print(start,' ',document,'DRAS | NOT FOUND')
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO DRAS'
+                    else:
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO REV'
+                            print(start,' ',document,'REV | NOT FOUND')
+                else:
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO DOC' 
+                            print(start,' ',document,'DOC | NOT FOUND') 
+                
+                
+            except Exception as e:
+                csSheet.cell(row=row[0].row,column=3).value = 'Error'
+                csSheet.cell(row=row[0].row,column=5).value = str(e) 
+                print(e) 
+    
+    csFile.save('app/comments/Piero_vendor.xlsx')
+    csFile.close() 
