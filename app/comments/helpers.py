@@ -1106,9 +1106,9 @@ def get_vendor_data_from_cs(item):
         abort(400,'Controllare le celle L8 L11 H10 H11 nel DRAS.')
     
     # Controlla se questa MR ha lo stesso fornitore.
-    mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
-    if mr and str(mr.drasvendor) != csSheet['H11'].value: 
-        abort(400,'MR assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
+    #mr = session.query(Drasmr).filter(Drasmr.name == csSheet['H10'].value).first()
+    #if mr and str(mr.drasvendor) != csSheet['H11'].value: 
+        #abort(400,'MR assegnata ad un altro fornitore o il nome del Vendor (cella H11) non corrisponde.')
 
     
     try:
@@ -1811,6 +1811,84 @@ def piero_items():
 
                             csSheet.cell(row=row[0].row,column=3).value = 'OK'
                             csSheet.cell(row=row[0].row,column=4).value = comments 
+                        else:
+                            print(start,' ',document,'DRAS | NOT FOUND')
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO DRAS'
+                    else:
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO REV'
+                            print(start,' ',document,'REV | NOT FOUND')
+                else:
+                            csSheet.cell(row=row[0].row,column=3).value = 'NO DOC' 
+                            print(start,' ',document,'DOC | NOT FOUND') 
+                
+                
+            except Exception as e:
+                csSheet.cell(row=row[0].row,column=3).value = 'Error'
+                csSheet.cell(row=row[0].row,column=5).value = str(e) 
+                print(e) 
+    
+    csFile.save('app/comments/Piero_vendor.xlsx')
+    csFile.close() 
+
+
+def check_comm_pos(item):
+    #item ='4def885a-604b-11e9-bffd-ac87a32187da_sep_DRAS_2544-17-DW-0510-04_CY.xlsx'
+    session = db.session
+    try:
+    
+        csFile = openpyxl.load_workbook(UPLOAD_FOLDER+item.cs_file, data_only=True)
+        csSheet = csFile.active
+        
+        #deleted = session.query(Drascomment).filter(Drascomment.drascommentsheet_id == item.id).delete()
+        
+        #print('Delete Comments -+-+-+',item,deleted) 
+
+        error_pos = []
+        
+        for row in csSheet.iter_rows(min_row=17, max_row = 25, min_col=2):
+            
+            if row[0].value is None and row[1].value:
+                return False
+        return True
+    except Exception as e:
+        print(e)
+
+
+def piero_pos_check_items():
+    #CHECK COMMENTS POS
+    session = db.session
+    csFile = openpyxl.load_workbook('app/comments/Piero_vendor.xlsx', data_only=True)
+    csSheet = csFile.active
+
+    start = 0 
+
+    for row in csSheet.iter_rows(min_row=2, min_col=1):
+        if row[2].value == 'OK':
+            start += 1
+            try:
+                document = row[0].value[:str(row[0].value).rindex('_')]
+                rev = row[0].value[str(row[0].value).rindex('_')+1:]
+                
+                dras_doc = session.query(Drasdocument).filter(Drasdocument.name == document).first()
+                
+                if dras_doc: 
+                    dras_rev = session.query(Drasrevision).filter(
+                        Drasrevision.name == rev,
+                        Drasrevision.drasdocument_id == dras_doc.id).first()
+
+                    if dras_rev:
+                        dras = session.query(Drascommentsheet).filter(
+                            Drascommentsheet.stage == 'YF',
+                            Drascommentsheet.drasrevision_id == dras_rev.id).first() 
+                        
+                        if dras:
+                            result = check_comm_pos(dras)
+                            
+                            
+                            print(start,dras.drasdocument, dras.drasrevision, dras.stage, 'C: ',result)
+
+                            csSheet.cell(row=row[0].row,column=3).value = 'OK'
+                            csSheet.cell(row=row[0].row,column=6).value = result 
                         else:
                             print(start,' ',document,'DRAS | NOT FOUND')
                             csSheet.cell(row=row[0].row,column=3).value = 'NO DRAS'

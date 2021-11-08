@@ -705,5 +705,6 @@ db.create_all()
 #upload_correspondence()
 #fakeItem3(1)    
 #init_dras()
-from app.comments.helpers import cs_sanification
+from app.comments.helpers import cs_sanification, piero_pos_check_items
+#piero_pos_check_items()
 #cs_sanification() 
